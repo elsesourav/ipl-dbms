@@ -5,13 +5,7 @@ export const dynamic = "force-dynamic";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-   Card,
-   CardContent,
-   CardDescription,
-   CardHeader,
-   CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { calculateAge } from "@/lib/utils";
 import { Calendar, DollarSign, MapPin, Users } from "lucide-react";
 import Link from "next/link";
@@ -44,8 +38,9 @@ export default function PlayersPage() {
    const fetchPlayers = async () => {
       try {
          const response = await fetch("/api/players");
+
          if (response.ok) {
-            const data = await response.json();
+            const { data } = await response.json();
             setPlayers(data);
          } else {
             setError("Failed to fetch players");
@@ -184,7 +179,7 @@ export default function PlayersPage() {
                         <CardTitle className="text-lg">
                            {player.player_name}
                         </CardTitle>
-                        <CardDescription className="flex items-center gap-1">
+                        <div className="flex items-center gap-1">
                            <Badge
                               className={
                                  roleColors[
@@ -194,7 +189,7 @@ export default function PlayersPage() {
                            >
                               {player.role}
                            </Badge>
-                        </CardDescription>
+                        </div>
                      </CardHeader>
                      <CardContent className="space-y-3">
                         {player.team_name && (

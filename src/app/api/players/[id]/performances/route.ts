@@ -1,27 +1,19 @@
-import { NextRequest, NextResponse } from 'next/server';
-import mysql from 'mysql2/promise';
+import pool from "@/lib/db";
+import { NextRequest, NextResponse } from "next/server";
 
-const createConnection = async () => {
-  return await mysql.createConnection({
-    host: process.env.MYSQL_HOST || 'localhost',
-    user: process.env.MYSQL_USER || 'root',
-    password: process.env.MYSQL_PASSWORD || '',
-    database: process.env.MYSQL_DATABASE || 'ipl_database',
-  });
-};
+export const dynamic = "force-dynamic";
 
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+   request: NextRequest,
+   { params }: { params: { id: string } }
 ) {
-  try {
-    const connection = await createConnection();
-    const playerId = params.id;
-    const { searchParams } = new URL(request.url);
-    const limit = searchParams.get('limit') || '10';
+   try {
+      const playerId = params.id;
+      const { searchParams } = new URL(request.url);
+      const limit = searchParams.get("limit") || "10";
 
-    const [rows] = await connection.execute(
-      `SELECT 
+      const [rows] = await pool.execute(
+         `SELECT 
         m.match_id,
         m.match_date,
         CASE 
@@ -42,14 +34,15 @@ export async function GET(
       WHERE p.player_id = ? AND m.is_completed = TRUE
       ORDER BY m.match_date DESC
       LIMIT ?`,
-      [playerId, parseInt(limit)]
-    );
+         [playerId, parseInt(limit)]
+      );
 
-    await connection.end();
-
-    return NextResponse.json(rows);
-  } catch (error) {
-    console.error('Database error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-  }
+      return NextResponse.json(rows);
+   } catch (error) {
+      console.error("Database error:", error);
+      return NextResponse.json(
+         { error: "Internal server error" },
+         { status: 500 }
+      );
+   }
 }

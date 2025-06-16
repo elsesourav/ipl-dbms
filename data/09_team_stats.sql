@@ -34,7 +34,7 @@ VALUES
    -- Lucknow Super Giants
    (10, 1, 14, 3, 11, 0, 6, -0.89);
 
--- IPL 2025 Team Stats (series_id = 2) - Empty/Initial data as season hasn't started
+-- IPL 2025 Team Stats (series_id = 2) - Updated with completed matches
 INSERT INTO
    TeamStats (
       team_id,
@@ -47,17 +47,18 @@ INSERT INTO
       net_run_rate
    )
 VALUES
-   (1, 2, 0, 0, 0, 0, 0, 0.00),
-   (2, 2, 0, 0, 0, 0, 0, 0.00),
-   (3, 2, 0, 0, 0, 0, 0, 0.00),
-   (4, 2, 0, 0, 0, 0, 0, 0.00),
-   (5, 2, 0, 0, 0, 0, 0, 0.00),
-   (6, 2, 0, 0, 0, 0, 0, 0.00),
-   (7, 2, 0, 0, 0, 0, 0, 0.00),
-   (8, 2, 0, 0, 0, 0, 0, 0.00),
-   (9, 2, 0, 0, 0, 0, 0, 0.00),
-   (10, 2, 0, 0, 0, 0, 0, 0.00);
+   (1, 2, 14, 9, 5, 0, 18, 0.72), -- Mumbai Indians - Champions
+   (2, 2, 14, 8, 6, 0, 16, 0.45), -- Chennai Super Kings
+   (3, 2, 14, 8, 6, 0, 16, 0.38), -- Royal Challengers Bangalore - Finalists
+   (4, 2, 14, 7, 7, 0, 14, 0.12), -- Kolkata Knight Riders
+   (5, 2, 14, 7, 7, 0, 14, -0.08), -- Punjab Kings
+   (6, 2, 14, 6, 8, 0, 12, -0.15), -- Gujarat Titans
+   (7, 2, 14, 6, 8, 0, 12, -0.22), -- Delhi Capitals
+   (8, 2, 14, 5, 9, 0, 10, -0.35), -- Sunrisers Hyderabad
+   (9, 2, 14, 4, 10, 0, 8, -0.48), -- Rajasthan Royals
+   (10, 2, 14, 3, 11, 0, 6, -0.67);
 
+-- Lucknow Super Giants
 -- Historical seasons - IPL 2023 (series_id = 3)
 INSERT INTO
    TeamStats (

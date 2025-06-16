@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
    Card,
    CardContent,
@@ -9,12 +10,11 @@ import {
    CardHeader,
    CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { ArrowLeft, Calendar, MapPin, Trophy, Users } from "lucide-react";
 import Link from "next/link";
-import { ArrowLeft, MapPin, Calendar, Trophy, Users } from "lucide-react";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 interface Team {
    team_id: number;
@@ -68,6 +68,22 @@ export default function TeamDetailPage() {
    const [recentMatches, setRecentMatches] = useState<Match[]>([]);
    const [loading, setLoading] = useState(true);
 
+   // Helper function to safely parse numeric values
+   const safeNumber = (value: any, defaultValue: number = 0): number => {
+      const num = typeof value === "string" ? parseFloat(value) : Number(value);
+      return isNaN(num) ? defaultValue : num;
+   };
+
+   // Helper function to safely format decimal numbers
+   const safeToFixed = (
+      value: any,
+      decimals: number = 2,
+      defaultValue: number = 0
+   ): string => {
+      const num = safeNumber(value, defaultValue);
+      return num.toFixed(decimals);
+   };
+
    useEffect(() => {
       const fetchTeamData = async () => {
          try {
@@ -98,7 +114,14 @@ export default function TeamDetailPage() {
             );
             if (matchesResponse.ok) {
                const matchesData = await matchesResponse.json();
-               setRecentMatches(matchesData);
+               // Handle both old and new API response formats
+               if (matchesData.success && matchesData.data) {
+                  setRecentMatches(matchesData.data);
+               } else if (Array.isArray(matchesData)) {
+                  setRecentMatches(matchesData);
+               } else {
+                  setRecentMatches([]);
+               }
             }
          } catch (error) {
             console.error("Error fetching team data:", error);
@@ -391,7 +414,7 @@ export default function TeamDetailPage() {
                            <Card>
                               <CardContent className="pt-6">
                                  <div className="text-2xl font-bold">
-                                    {stats.matches_played}
+                                    {safeNumber(stats.matches_played)}
                                  </div>
                                  <p className="text-xs text-gray-600">
                                     Matches Played
@@ -401,7 +424,7 @@ export default function TeamDetailPage() {
                            <Card>
                               <CardContent className="pt-6">
                                  <div className="text-2xl font-bold text-green-600">
-                                    {stats.matches_won}
+                                    {safeNumber(stats.matches_won)}
                                  </div>
                                  <p className="text-xs text-gray-600">Won</p>
                               </CardContent>
@@ -409,7 +432,7 @@ export default function TeamDetailPage() {
                            <Card>
                               <CardContent className="pt-6">
                                  <div className="text-2xl font-bold text-red-600">
-                                    {stats.matches_lost}
+                                    {safeNumber(stats.matches_lost)}
                                  </div>
                                  <p className="text-xs text-gray-600">Lost</p>
                               </CardContent>
@@ -417,7 +440,7 @@ export default function TeamDetailPage() {
                            <Card>
                               <CardContent className="pt-6">
                                  <div className="text-2xl font-bold">
-                                    {stats.points}
+                                    {safeNumber(stats.points)}
                                  </div>
                                  <p className="text-xs text-gray-600">Points</p>
                               </CardContent>
@@ -425,7 +448,7 @@ export default function TeamDetailPage() {
                            <Card>
                               <CardContent className="pt-6">
                                  <div className="text-2xl font-bold">
-                                    {stats.net_run_rate.toFixed(2)}
+                                    {safeToFixed(stats.net_run_rate, 2)}
                                  </div>
                                  <p className="text-xs text-gray-600">NRR</p>
                               </CardContent>
@@ -453,10 +476,10 @@ export default function TeamDetailPage() {
                                  Win Rate
                               </span>
                               <span className="font-medium">
-                                 {stats.matches_played > 0
+                                 {safeNumber(stats.matches_played) > 0
                                     ? Math.round(
-                                         (stats.matches_won /
-                                            stats.matches_played) *
+                                         (safeNumber(stats.matches_won) /
+                                            safeNumber(stats.matches_played)) *
                                             100
                                       )
                                     : 0}
@@ -487,14 +510,6 @@ export default function TeamDetailPage() {
                      <Link href={`/teams/${teamId}/stats`} className="block">
                         <Button variant="outline" className="w-full">
                            Detailed Stats
-                        </Button>
-                     </Link>
-                     <Link
-                        href={`/admin/teams/edit/${teamId}`}
-                        className="block"
-                     >
-                        <Button variant="outline" className="w-full">
-                           Edit Team
                         </Button>
                      </Link>
                   </CardContent>

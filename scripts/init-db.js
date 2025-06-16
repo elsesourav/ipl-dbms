@@ -1,14 +1,9 @@
-const mysql = require("mysql2/promise");
+import pool from "@/lib/db";
 require("dotenv").config({ path: ".env.local" });
 
 const createConnection = async () => {
    try {
-      const connection = await mysql.createConnection({
-         host: process.env.MYSQL_HOST || "localhost",
-         user: process.env.MYSQL_USER || "root",
-         password: process.env.MYSQL_PASSWORD || "",
-      });
-
+      const connection = await pool.getConnection();
       console.log("Connected to MySQL server");
       return connection;
    } catch (error) {
@@ -157,7 +152,7 @@ const initializeDatabase = async () => {
       process.exit(1);
    } finally {
       if (connection) {
-         await connection.end();
+         await connection.release();
       }
    }
 };

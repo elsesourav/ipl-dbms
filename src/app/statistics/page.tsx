@@ -38,7 +38,6 @@ export default function StatisticsPage() {
          setLoading(true);
          const response = await fetch("/api/statistics");
          const result = await response.json();
-         console.log(result);
 
          if (result.success) {
             setStatistics(result.data);
@@ -51,6 +50,24 @@ export default function StatisticsPage() {
       } finally {
          setLoading(false);
       }
+   };
+
+   // Helper function to safely convert to number and format
+   const safeNumber = (value: any, defaultValue: number = 0): number => {
+      if (value === null || value === undefined || value === "")
+         return defaultValue;
+      const num = typeof value === "string" ? parseFloat(value) : Number(value);
+      return isNaN(num) ? defaultValue : num;
+   };
+
+   // Helper function to safely format decimal numbers
+   const safeToFixed = (
+      value: any,
+      decimals: number = 1,
+      defaultValue: number = 0
+   ): string => {
+      const num = safeNumber(value, defaultValue);
+      return num.toFixed(decimals);
    };
 
    const topBatsmen = statistics?.topScorers?.slice(0, 10) || [];
@@ -113,7 +130,7 @@ export default function StatisticsPage() {
                   <CardContent>
                      <div className="text-2xl font-bold">
                         {statistics?.topScorers?.reduce(
-                           (sum, player) => sum + player.total_runs,
+                           (sum, player) => sum + safeNumber(player.total_runs),
                            0
                         ) || 0}
                      </div>
@@ -133,7 +150,8 @@ export default function StatisticsPage() {
                   <CardContent>
                      <div className="text-2xl font-bold">
                         {statistics?.topBowlers?.reduce(
-                           (sum, player) => sum + player.total_wickets,
+                           (sum, player) =>
+                              sum + safeNumber(player.total_wickets),
                            0
                         ) || 0}
                      </div>
@@ -153,7 +171,8 @@ export default function StatisticsPage() {
                   <CardContent>
                      <div className="text-2xl font-bold">
                         {statistics?.topScorers?.reduce(
-                           (sum, player) => sum + player.total_sixes,
+                           (sum, player) =>
+                              sum + safeNumber(player.total_sixes),
                            0
                         ) || 0}
                      </div>
@@ -176,11 +195,12 @@ export default function StatisticsPage() {
                         statistics.topScorers.length > 0
                            ? (
                                 statistics.topScorers.reduce(
-                                   (sum, player) => sum + player.strike_rate,
+                                   (sum, player) =>
+                                      sum + safeNumber(player.strike_rate),
                                    0
                                 ) / statistics.topScorers.length
                              ).toFixed(1)
-                           : "0"}
+                           : "0.0"}
                      </div>
                      <p className="text-xs text-muted-foreground">
                         Overall tournament
@@ -222,20 +242,21 @@ export default function StatisticsPage() {
                                     </div>
                                     <div>
                                        <div className="font-medium">
-                                          {player.player_name}
+                                          {player.player_name ||
+                                             "Unknown Player"}
                                        </div>
                                        <div className="text-sm text-gray-500">
-                                          {player.team_name}
+                                          {player.team_name || "No Team"}
                                        </div>
                                     </div>
                                  </div>
                                  <div className="text-right">
                                     <div className="font-bold text-lg">
-                                       {player.total_runs}
+                                       {safeNumber(player.total_runs)}
                                     </div>
                                     <div className="text-xs text-gray-500">
-                                       SR: {player.strike_rate.toFixed(1)} | HS:{" "}
-                                       {player.highest_score}
+                                       SR: {safeToFixed(player.strike_rate, 1)}{" "}
+                                       | HS: {safeNumber(player.highest_score)}
                                     </div>
                                  </div>
                               </div>
@@ -269,20 +290,23 @@ export default function StatisticsPage() {
                                     </div>
                                     <div>
                                        <div className="font-medium">
-                                          {player.player_name}
+                                          {player.player_name ||
+                                             "Unknown Player"}
                                        </div>
                                        <div className="text-sm text-gray-500">
-                                          {player.team_name}
+                                          {player.team_name || "No Team"}
                                        </div>
                                     </div>
                                  </div>
                                  <div className="text-right">
                                     <div className="font-bold text-lg">
-                                       {player.total_wickets}
+                                       {safeNumber(player.total_wickets)}
                                     </div>
                                     <div className="text-xs text-gray-500">
-                                       Eco: {player.economy_rate.toFixed(2)} |
-                                       Overs: {player.total_overs}
+                                       Eco:{" "}
+                                       {safeToFixed(player.economy_rate, 2)} |
+                                       Overs:{" "}
+                                       {safeToFixed(player.total_overs, 1)}
                                     </div>
                                  </div>
                               </div>
@@ -318,21 +342,22 @@ export default function StatisticsPage() {
                                        </div>
                                        <div>
                                           <div className="font-medium">
-                                             {team.team_name}
+                                             {team.team_name || "Unknown Team"}
                                           </div>
                                           <div className="text-sm text-gray-500">
-                                             {team.team_code} • {team.city}
+                                             {team.team_code || "N/A"} •{" "}
+                                             {team.city || "Unknown City"}
                                           </div>
                                        </div>
                                     </div>
                                     <div className="text-right">
                                        <div className="font-bold text-lg">
-                                          {team.win_percentage}%
+                                          {safeToFixed(team.win_percentage, 0)}%
                                        </div>
                                        <div className="text-xs text-gray-500">
-                                          {team.matches_won}W-
-                                          {team.matches_lost}L | {team.points}{" "}
-                                          pts
+                                          {safeNumber(team.matches_won)}W-
+                                          {safeNumber(team.matches_lost)}L |{" "}
+                                          {safeNumber(team.points)} pts
                                        </div>
                                     </div>
                                  </div>

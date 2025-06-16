@@ -1,157 +1,168 @@
-import { NextRequest, NextResponse } from 'next/server';
-import mysql from 'mysql2/promise';
+import pool from "@/lib/db";
+import { NextRequest, NextResponse } from "next/server";
 
-const dbConfig = {
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'ipl_dbms',
-  port: parseInt(process.env.DB_PORT || '3306'),
-};
+export const dynamic = "force-dynamic";
 
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+   request: NextRequest,
+   { params }: { params: { id: string } }
 ) {
-  try {
-    const connection = await mysql.createConnection(dbConfig);
-    
-    // Get match details with teams, stadium, and series info
-    const [matchRows] = await connection.execute(`
+   try {
+      // Get match details with teams, stadium, and series info
+      const [matchRows] = await pool.execute(
+         `
       SELECT 
         m.*,
-        t1.name as team1_name,
-        t1.short_name as team1_short,
-        t1.logo_url as team1_logo,
-        t2.name as team2_name,
-        t2.short_name as team2_short,
-        t2.logo_url as team2_logo,
-        s.name as stadium_name,
+        t1.team_name as team1_name,
+        t1.team_code as team1_short,
+        t1.team_color as team1_logo,
+        t2.team_name as team2_name,
+        t2.team_code as team2_short,
+        t2.team_color as team2_logo,
+        s.stadium_name as stadium_name,
         s.city as stadium_city,
         s.capacity as stadium_capacity,
-        sr.name as series_name,
-        sr.year as series_year,
-        wt.name as winner_name,
-        wt.short_name as winner_short,
-        u1.name as umpire1_name,
-        u2.name as umpire2_name
-      FROM matches m
-      JOIN teams t1 ON m.team1_id = t1.id
-      JOIN teams t2 ON m.team2_id = t2.id
-      JOIN stadiums s ON m.stadium_id = s.id
-      JOIN series sr ON m.series_id = sr.id
-      LEFT JOIN teams wt ON m.winner_id = wt.id
-      LEFT JOIN umpires u1 ON m.umpire1_id = u1.id
-      LEFT JOIN umpires u2 ON m.umpire2_id = u2.id
-      WHERE m.id = ?
-    `, [params.id]);
+        sr.series_name as series_name,
+        sr.season_year as series_year,
+        wt.team_name as winner_name,
+        wt.team_code as winner_short,
+        u1.umpire_name as umpire1_name,
+        u2.umpire_name as umpire2_name
+      FROM Matches m
+      JOIN Teams t1 ON m.team1_id = t1.team_id
+      JOIN Teams t2 ON m.team2_id = t2.team_id
+      JOIN Stadiums s ON m.stadium_id = s.stadium_id
+      JOIN Series sr ON m.series_id = sr.series_id
+      LEFT JOIN Teams wt ON m.winner_id = wt.team_id
+      LEFT JOIN Umpires u1 ON m.umpire1_id = u1.umpire_id
+      LEFT JOIN Umpires u2 ON m.umpire2_id = u2.umpire_id
+      WHERE m.match_id = ?
+    `,
+         [params.id]
+      );
 
-    if (!matchRows || (matchRows as any[]).length === 0) {
-      return NextResponse.json({ error: 'Match not found' }, { status: 404 });
-    }
+      if (!matchRows || (matchRows as any[]).length === 0) {
+         return NextResponse.json(
+            { error: "Match not found" },
+            { status: 404 }
+         );
+      }
 
-    const match = (matchRows as any[])[0];
+      const match = (matchRows as any[])[0];
 
-    // Get batting scorecards
-    const [battingRows] = await connection.execute(`
+      // Get batting scorecards
+      const [battingRows] = await pool.execute(
+         `
       SELECT 
         bs.*,
-        p.name as player_name,
+        p.player_name as player_name,
         p.batting_style,
-        t.name as team_name,
-        t.short_name as team_short
-      FROM batting_scorecards bs
-      JOIN players p ON bs.player_id = p.id
-      JOIN teams t ON bs.team_id = t.id
+        t.team_name as team_name,
+        t.team_code as team_short
+      FROM BattingScorecard bs
+      JOIN Players p ON bs.player_id = p.player_id
+      JOIN Teams t ON bs.team_id = t.team_id
       WHERE bs.match_id = ?
-      ORDER BY bs.team_id, bs.batting_order
-    `, [params.id]);
+      ORDER BY bs.team_id, bs.batting_position
+    `,
+         [params.id]
+      );
 
-    // Get bowling scorecards
-    const [bowlingRows] = await connection.execute(`
+      // Get bowling scorecards
+      const [bowlingRows] = await pool.execute(
+         `
       SELECT 
         bw.*,
-        p.name as player_name,
+        p.player_name as player_name,
         p.bowling_style,
-        t.name as team_name,
-        t.short_name as team_short
-      FROM bowling_scorecards bw
-      JOIN players p ON bw.player_id = p.id
-      JOIN teams t ON bw.team_id = t.id
+        t.team_name as team_name,
+        t.team_code as team_short
+      FROM BowlingScorecard bw
+      JOIN Players p ON bw.player_id = p.player_id
+      JOIN Teams t ON bw.team_id = t.team_id
       WHERE bw.match_id = ?
       ORDER BY bw.team_id, bw.overs_bowled DESC
-    `, [params.id]);
+    `,
+         [params.id]
+      );
 
-    await connection.end();
+      // Group batting and bowling by team
+      const team1Batting = (battingRows as any[]).filter(
+         (row) => row.team_id === match.team1_id
+      );
+      const team2Batting = (battingRows as any[]).filter(
+         (row) => row.team_id === match.team2_id
+      );
+      const team1Bowling = (bowlingRows as any[]).filter(
+         (row) => row.team_id === match.team2_id
+      ); // Team2 bowled to Team1
+      const team2Bowling = (bowlingRows as any[]).filter(
+         (row) => row.team_id === match.team1_id
+      ); // Team1 bowled to Team2
 
-    // Group batting and bowling by team
-    const team1Batting = (battingRows as any[]).filter(row => row.team_id === match.team1_id);
-    const team2Batting = (battingRows as any[]).filter(row => row.team_id === match.team2_id);
-    const team1Bowling = (bowlingRows as any[]).filter(row => row.team_id === match.team2_id); // Team2 bowled to Team1
-    const team2Bowling = (bowlingRows as any[]).filter(row => row.team_id === match.team1_id); // Team1 bowled to Team2
-
-    return NextResponse.json({
-      match: {
-        id: match.id,
-        date: match.date,
-        venue: {
-          name: match.stadium_name,
-          city: match.stadium_city,
-          capacity: match.stadium_capacity
-        },
-        series: {
-          name: match.series_name,
-          year: match.series_year
-        },
-        teams: {
-          team1: {
-            id: match.team1_id,
-            name: match.team1_name,
-            short_name: match.team1_short,
-            logo_url: match.team1_logo
-          },
-          team2: {
-            id: match.team2_id,
-            name: match.team2_name,
-            short_name: match.team2_short,
-            logo_url: match.team2_logo
-          }
-        },
-        result: {
-          winner: match.winner_id ? {
-            id: match.winner_id,
-            name: match.winner_name,
-            short_name: match.winner_short
-          } : null,
-          margin: match.result_margin,
-          type: match.result_type
-        },
-        officials: {
-          umpire1: match.umpire1_name,
-          umpire2: match.umpire2_name
-        },
-        toss: {
-          winner_id: match.toss_winner_id,
-          decision: match.toss_decision
-        }
-      },
-      scorecards: {
-        batting: {
-          team1: team1Batting,
-          team2: team2Batting
-        },
-        bowling: {
-          team1: team1Bowling,
-          team2: team2Bowling
-        }
-      }
-    });
-
-  } catch (error) {
-    console.error('Database error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
+      return NextResponse.json({
+         match: {
+            id: match.match_id,
+            date: match.match_date,
+            venue: {
+               name: match.stadium_name,
+               city: match.stadium_city,
+               capacity: match.stadium_capacity,
+            },
+            series: {
+               name: match.series_name,
+               year: match.series_year,
+            },
+            teams: {
+               team1: {
+                  id: match.team1_id,
+                  name: match.team1_name,
+                  short_name: match.team1_short,
+                  logo_url: match.team1_logo,
+               },
+               team2: {
+                  id: match.team2_id,
+                  name: match.team2_name,
+                  short_name: match.team2_short,
+                  logo_url: match.team2_logo,
+               },
+            },
+            result: {
+               winner: match.winner_id
+                  ? {
+                       id: match.winner_id,
+                       name: match.winner_name,
+                       short_name: match.winner_short,
+                    }
+                  : null,
+               margin: match.win_margin,
+               type: match.win_type,
+            },
+            officials: {
+               umpire1: match.umpire1_name,
+               umpire2: match.umpire2_name,
+            },
+            toss: {
+               winner_id: match.toss_winner_id,
+               decision: match.toss_decision,
+            },
+         },
+         scorecards: {
+            batting: {
+               team1: team1Batting,
+               team2: team2Batting,
+            },
+            bowling: {
+               team1: team1Bowling,
+               team2: team2Bowling,
+            },
+         },
+      });
+   } catch (error) {
+      console.error("Database error:", error);
+      return NextResponse.json(
+         { error: "Internal server error" },
+         { status: 500 }
+      );
+   }
 }

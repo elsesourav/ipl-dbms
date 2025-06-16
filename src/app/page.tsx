@@ -6,7 +6,7 @@ import {
    CardHeader,
    CardTitle,
 } from "@/components/ui/card";
-import { BarChart3, Calendar, Trophy, Users, MapPin } from "lucide-react";
+import { BarChart3, Calendar, MapPin, Trophy, Users } from "lucide-react";
 import Link from "next/link";
 
 export default function HomePage() {

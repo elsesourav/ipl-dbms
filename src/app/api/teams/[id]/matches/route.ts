@@ -1,56 +1,82 @@
-import { NextRequest, NextResponse } from 'next/server';
-import mysql from 'mysql2/promise';
+import db from "@/lib/db";
+import { NextRequest, NextResponse } from "next/server";
 
-const createConnection = async () => {
-  return await mysql.createConnection({
-    host: process.env.MYSQL_HOST || 'localhost',
-    user: process.env.MYSQL_USER || 'root',
-    password: process.env.MYSQL_PASSWORD || '',
-    database: process.env.MYSQL_DATABASE || 'ipl_database',
-  });
-};
+// Force dynamic rendering
+export const dynamic = "force-dynamic";
 
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+   request: NextRequest,
+   { params }: { params: { id: string } }
 ) {
-  try {
-    const connection = await createConnection();
-    const teamId = params.id;
-    const { searchParams } = new URL(request.url);
-    const limit = searchParams.get('limit') || '10';
+   try {
+      const teamId = parseInt(params.id);
+      const { searchParams } = new URL(request.url);
+      const limit = Math.min(parseInt(searchParams.get("limit") || "10"), 50); // Cap at 50
 
-    const [rows] = await connection.execute(
-      `SELECT 
-        m.match_id,
-        m.match_date,
-        CASE 
-          WHEN m.team1_id = ? THEN t2.team_name
-          ELSE t1.team_name
-        END as opponent,
-        s.stadium_name as venue,
-        CASE 
-          WHEN m.winner_id = ? THEN 'Won'
-          WHEN m.winner_id IS NULL THEN 'No Result'
-          ELSE 'Lost'
-        END as result,
-        m.win_margin,
-        m.win_type
-      FROM Matches m
-      JOIN Teams t1 ON m.team1_id = t1.team_id
-      JOIN Teams t2 ON m.team2_id = t2.team_id
-      JOIN Stadiums s ON m.stadium_id = s.stadium_id
-      WHERE (m.team1_id = ? OR m.team2_id = ?) AND m.is_completed = TRUE
-      ORDER BY m.match_date DESC
-      LIMIT ?`,
-      [teamId, teamId, teamId, teamId, parseInt(limit)]
-    );
+      if (isNaN(teamId)) {
+         return NextResponse.json(
+            { success: false, error: "Invalid team ID" },
+            { status: 400 }
+         );
+      }
 
-    await connection.end();
+      if (isNaN(limit) || limit < 1) {
+         return NextResponse.json(
+            { success: false, error: "Invalid limit parameter" },
+            { status: 400 }
+         );
+      }
 
-    return NextResponse.json(rows);
-  } catch (error) {
-    console.error('Database error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-  }
+      console.log(`Fetching matches for team ${teamId} with limit ${limit}`);
+
+      // Use parameterized query but handle LIMIT separately for MySQL compatibility
+      const [rows] = await db.execute(
+         `SELECT 
+            m.match_id,
+            m.match_date,
+            m.match_type,
+            m.is_completed,
+            m.winner_id,
+            m.win_type,
+            m.win_margin,
+            CASE 
+               WHEN m.team1_id = ? THEN t2.team_name
+               ELSE t1.team_name
+            END as opponent,
+            CASE 
+               WHEN m.winner_id = ? THEN 'Won'
+               WHEN m.winner_id IS NULL AND m.is_completed = 1 THEN 'No Result'
+               WHEN m.is_completed = 1 THEN 'Lost'
+               ELSE 'Upcoming'
+            END as result,
+            st.stadium_name as venue,
+            st.city as venue_city
+         FROM Matches m
+         LEFT JOIN Teams t1 ON m.team1_id = t1.team_id
+         LEFT JOIN Teams t2 ON m.team2_id = t2.team_id
+         LEFT JOIN Stadiums st ON m.stadium_id = st.stadium_id
+         WHERE (m.team1_id = ? OR m.team2_id = ?) AND m.is_completed = TRUE
+         ORDER BY m.match_date DESC
+         LIMIT ${limit}`,
+         [teamId, teamId, teamId, teamId]
+      );
+
+      console.log(`Found ${(rows as any[]).length} matches for team ${teamId}`);
+
+      return NextResponse.json({
+         success: true,
+         data: rows,
+         count: (rows as any[]).length,
+      });
+   } catch (error) {
+      console.error("Error fetching team matches:", error);
+      return NextResponse.json(
+         {
+            success: false,
+            error: "Failed to fetch team matches",
+            details: error instanceof Error ? error.message : "Unknown error",
+         },
+         { status: 500 }
+      );
+   }
 }

@@ -1,25 +1,18 @@
-import { NextRequest, NextResponse } from 'next/server';
-import mysql from 'mysql2/promise';
+import pool from "@/lib/db";
+import { NextRequest, NextResponse } from "next/server";
 
-const createConnection = async () => {
-  return await mysql.createConnection({
-    host: process.env.MYSQL_HOST || 'localhost',
-    user: process.env.MYSQL_USER || 'root',
-    password: process.env.MYSQL_PASSWORD || '',
-    database: process.env.MYSQL_DATABASE || 'ipl_database',
-  });
-};
+export const dynamic = "force-dynamic";
 
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+   request: NextRequest,
+   { params }: { params: { id: string } }
 ) {
-  try {
-    const connection = await createConnection();
-    const teamId = params.id;
+   try {
 
-    const [rows] = await connection.execute(
-      `SELECT 
+      const teamId = params.id;
+
+      const [rows] = await pool.execute(
+         `SELECT 
         player_id,
         player_name,
         role,
@@ -39,14 +32,15 @@ export async function GET(
           ELSE 5
         END,
         player_name`,
-      [teamId]
-    );
+         [teamId]
+      );
 
-    await connection.end();
-
-    return NextResponse.json(rows);
-  } catch (error) {
-    console.error('Database error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-  }
+      return NextResponse.json(rows);
+   } catch (error) {
+      console.error("Database error:", error);
+      return NextResponse.json(
+         { error: "Internal server error" },
+         { status: 500 }
+      );
+   }
 }

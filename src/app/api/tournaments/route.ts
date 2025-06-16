@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
       FROM Series s
       LEFT JOIN Matches m ON s.series_id = m.series_id
       GROUP BY s.series_id, s.series_name, s.start_date, s.end_date, s.season_year
-      ORDER BY s.start_date DESC
+      ORDER BY s.end_date DESC, s.season_year DESC
     `);
 
       // Get current/ongoing tournaments

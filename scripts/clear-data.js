@@ -1,16 +1,9 @@
-const mysql = require("mysql2/promise");
+import pool from "@/lib/db";
 require("dotenv").config({ path: ".env.local" });
 
 const createConnection = async () => {
    try {
-      const connection = await mysql.createConnection({
-         host: process.env.MYSQL_HOST || "localhost",
-         user: process.env.MYSQL_USER || "root",
-         password: process.env.MYSQL_PASSWORD || "",
-         database: "ipl_database",
-      });
-
-      console.log("Connected to MySQL server and ipl_database");
+      const connection = await pool.getConnection();
       return connection;
    } catch (error) {
       console.error("Error connecting to MySQL:", error);
@@ -18,8 +11,9 @@ const createConnection = async () => {
    }
 };
 
+
 const clearAllData = async () => {
-   let connection;
+   let connection;   
 
    try {
       connection = await createConnection();
@@ -64,7 +58,7 @@ const clearAllData = async () => {
       process.exit(1);
    } finally {
       if (connection) {
-         await connection.end();
+         await connection.release();
       }
    }
 };

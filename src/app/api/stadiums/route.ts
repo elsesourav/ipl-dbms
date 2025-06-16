@@ -1,40 +1,33 @@
-import { NextRequest, NextResponse } from 'next/server';
-import mysql from 'mysql2/promise';
+import pool from "@/lib/db";
+import { NextResponse } from "next/server";
 
-const dbConfig = {
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'ipl_dbms',
-  port: parseInt(process.env.DB_PORT || '3306'),
-};
+export const dynamic = "force-dynamic";
 
 export async function GET() {
-  try {
-    const connection = await mysql.createConnection(dbConfig);
-    
-    const [rows] = await connection.execute(`
+   try {
+
+      const [rows] = await pool.execute(`
       SELECT 
         s.*,
-        COUNT(m.id) as matches_played,
+        COUNT(m.match_id) as matches_played,
         AVG(CASE WHEN m.winner_id IS NOT NULL THEN 1 ELSE 0 END) as completion_rate
-      FROM stadiums s
-      LEFT JOIN matches m ON s.id = m.stadium_id
-      GROUP BY s.id
-      ORDER BY matches_played DESC, s.name
+      FROM Stadiums s
+      LEFT JOIN Matches m ON s.stadium_id = m.stadium_id
+      GROUP BY s.stadium_id
+      ORDER BY matches_played DESC, s.stadium_name
     `);
 
-    await connection.end();
+      console.log("Stadiums fetched successfully");
+      console.log(rows);
 
-    return NextResponse.json({
-      stadiums: rows
-    });
-
-  } catch (error) {
-    console.error('Database error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
+      return NextResponse.json({
+         stadiums: rows,
+      });
+   } catch (error) {
+      console.error("Database error:", error);
+      return NextResponse.json(
+         { error: "Internal server error" },
+         { status: 500 }
+      );
+   }
 }
