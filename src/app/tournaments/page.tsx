@@ -45,13 +45,16 @@ export default function TournamentsPage() {
          const response = await fetch("/api/tournaments");
          const result = await response.json();
 
+         console.log(result);
+
          if (result.success) {
             // Map the API response to our component state
             const mappedTournaments = result.data.all.map(
                (tournament: any) => ({
                   series_id: tournament.series_id,
                   series_name: tournament.series_name,
-                  season_year: tournament.season || new Date().getFullYear(),
+                  season_year:
+                     tournament.season_year || new Date().getFullYear(),
                   start_date: tournament.start_date,
                   end_date: tournament.end_date,
                   format: "T20", // Default format since not in DB

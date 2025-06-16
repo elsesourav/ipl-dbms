@@ -7,11 +7,14 @@
       "build": "next build",
       "start": "next start",
       "lint": "next lint",
-      "init-db": "node scripts/init-db.js"
+      "init-db": "node scripts/init-db.js",
+      "load-data": "node scripts/load-data.js",
+      "clear-data": "node scripts/clear-data.js"
    },
    "dependencies": {
       "@hookform/resolvers": "^3.3.2",
       "@radix-ui/react-alert-dialog": "^1.0.5",
+      "@radix-ui/react-avatar": "^1.1.10",
       "@radix-ui/react-dialog": "^1.1.14",
       "@radix-ui/react-dropdown-menu": "^2.1.15",
       "@radix-ui/react-label": "^2.0.2",
@@ -22,6 +25,7 @@
       "bcrypt": "^5.1.1",
       "class-variance-authority": "^0.7.0",
       "clsx": "^2.0.0",
+      "dotenv": "^16.5.0",
       "lucide-react": "^0.400.0",
       "mysql2": "^3.6.5",
       "next": "^14.2.30",

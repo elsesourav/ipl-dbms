@@ -6,7 +6,7 @@ import {
    CardHeader,
    CardTitle,
 } from "@/components/ui/card";
-import { BarChart3, Calendar, Trophy, Users } from "lucide-react";
+import { BarChart3, Calendar, Trophy, Users, MapPin } from "lucide-react";
 import Link from "next/link";
 
 export default function HomePage() {
@@ -30,7 +30,7 @@ export default function HomePage() {
             </div>
 
             {/* Feature Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-12">
                <Card className="hover:shadow-lg transition-shadow">
                   <CardHeader>
                      <CardTitle className="flex items-center gap-2">
@@ -62,6 +62,23 @@ export default function HomePage() {
                   <CardContent>
                      <Link href="/matches">
                         <Button className="w-full">View Matches</Button>
+                     </Link>
+                  </CardContent>
+               </Card>
+
+               <Card className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                     <CardTitle className="flex items-center gap-2">
+                        <MapPin className="w-5 h-5" />
+                        Stadiums
+                     </CardTitle>
+                     <CardDescription>
+                        Explore IPL venues, stadium details, and match history
+                     </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                     <Link href="/stadiums">
+                        <Button className="w-full">View Stadiums</Button>
                      </Link>
                   </CardContent>
                </Card>

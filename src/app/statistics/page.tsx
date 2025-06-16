@@ -12,6 +12,7 @@ import {
    CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { StatisticsData } from "@/types/statistics";
 import {
    Award,
    BarChart3,
@@ -23,33 +24,8 @@ import {
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-interface PlayerStats {
-   player_id: number;
-   player_name: string;
-   team_name?: string;
-   matches_played: number;
-   total_runs: number;
-   total_balls: number;
-   total_fours: number;
-   total_sixes: number;
-   highest_score: number;
-   strike_rate: number;
-}
-
-interface BowlingStats {
-   player_id: number;
-   player_name: string;
-   team_name?: string;
-   matches_bowled: number;
-   total_overs: number;
-   total_runs_conceded: number;
-   total_wickets: number;
-   economy_rate: number;
-}
-
 export default function StatisticsPage() {
-   const [battingStats, setBattingStats] = useState<PlayerStats[]>([]);
-   const [bowlingStats, setBowlingStats] = useState<BowlingStats[]>([]);
+   const [statistics, setStatistics] = useState<StatisticsData | null>(null);
    const [loading, setLoading] = useState(true);
    const [error, setError] = useState("");
 
@@ -62,39 +38,10 @@ export default function StatisticsPage() {
          setLoading(true);
          const response = await fetch("/api/statistics");
          const result = await response.json();
+         console.log(result);
 
          if (result.success) {
-            // Map the API response to our component state
-            const mappedBattingStats = result.data.topScorers.map(
-               (player: any) => ({
-                  player_id: player.player_id || Math.random(),
-                  player_name: player.name,
-                  team_name: player.team,
-                  matches_played: player.matches_played || 0,
-                  total_runs: player.total_runs || 0,
-                  total_balls: 0, // Not available from current query
-                  total_fours: 0, // Not available from current query
-                  total_sixes: 0, // Not available from current query
-                  highest_score: 0, // Not available from current query
-                  strike_rate: 0, // Not available from current query
-               })
-            );
-
-            const mappedBowlingStats = result.data.topBowlers.map(
-               (player: any) => ({
-                  player_id: player.player_id || Math.random(),
-                  player_name: player.name,
-                  team_name: player.team,
-                  matches_bowled: player.matches_bowled || 0,
-                  total_overs: 0, // Not available from current query
-                  total_runs_conceded: 0, // Not available from current query
-                  total_wickets: player.total_wickets || 0,
-                  economy_rate: 0, // Not available from current query
-               })
-            );
-
-            setBattingStats(mappedBattingStats);
-            setBowlingStats(mappedBowlingStats);
+            setStatistics(result.data);
          } else {
             setError(result.error || "Failed to fetch statistics");
          }
@@ -106,13 +53,8 @@ export default function StatisticsPage() {
       }
    };
 
-   const topBatsmen = [...battingStats]
-      .sort((a, b) => b.total_runs - a.total_runs)
-      .slice(0, 10);
-
-   const topBowlers = [...bowlingStats]
-      .sort((a, b) => b.total_wickets - a.total_wickets)
-      .slice(0, 10);
+   const topBatsmen = statistics?.topScorers?.slice(0, 10) || [];
+   const topBowlers = statistics?.topBowlers?.slice(0, 10) || [];
 
    if (loading) {
       return (
@@ -170,10 +112,10 @@ export default function StatisticsPage() {
                   </CardHeader>
                   <CardContent>
                      <div className="text-2xl font-bold">
-                        {battingStats.reduce(
+                        {statistics?.topScorers?.reduce(
                            (sum, player) => sum + player.total_runs,
                            0
-                        )}
+                        ) || 0}
                      </div>
                      <p className="text-xs text-muted-foreground">
                         Across all matches
@@ -190,10 +132,10 @@ export default function StatisticsPage() {
                   </CardHeader>
                   <CardContent>
                      <div className="text-2xl font-bold">
-                        {bowlingStats.reduce(
+                        {statistics?.topBowlers?.reduce(
                            (sum, player) => sum + player.total_wickets,
                            0
-                        )}
+                        ) || 0}
                      </div>
                      <p className="text-xs text-muted-foreground">
                         Taken by bowlers
@@ -210,10 +152,10 @@ export default function StatisticsPage() {
                   </CardHeader>
                   <CardContent>
                      <div className="text-2xl font-bold">
-                        {battingStats.reduce(
+                        {statistics?.topScorers?.reduce(
                            (sum, player) => sum + player.total_sixes,
                            0
-                        )}
+                        ) || 0}
                      </div>
                      <p className="text-xs text-muted-foreground">
                         Maximum boundaries
@@ -230,12 +172,13 @@ export default function StatisticsPage() {
                   </CardHeader>
                   <CardContent>
                      <div className="text-2xl font-bold">
-                        {battingStats.length > 0
+                        {statistics?.topScorers &&
+                        statistics.topScorers.length > 0
                            ? (
-                                battingStats.reduce(
+                                statistics.topScorers.reduce(
                                    (sum, player) => sum + player.strike_rate,
                                    0
-                                ) / battingStats.length
+                                ) / statistics.topScorers.length
                              ).toFixed(1)
                            : "0"}
                      </div>
@@ -248,9 +191,11 @@ export default function StatisticsPage() {
 
             {/* Detailed Statistics */}
             <Tabs defaultValue="batting" className="space-y-4">
-               <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="batting">Batting Statistics</TabsTrigger>
-                  <TabsTrigger value="bowling">Bowling Statistics</TabsTrigger>
+               <TabsList className="grid w-full grid-cols-4">
+                  <TabsTrigger value="batting">Batting</TabsTrigger>
+                  <TabsTrigger value="bowling">Bowling</TabsTrigger>
+                  <TabsTrigger value="teams">Teams</TabsTrigger>
+                  <TabsTrigger value="matches">Matches</TabsTrigger>
                </TabsList>
 
                <TabsContent value="batting" className="space-y-4">
@@ -346,10 +291,127 @@ export default function StatisticsPage() {
                      </CardContent>
                   </Card>
                </TabsContent>
+
+               <TabsContent value="teams" className="space-y-4">
+                  <Card>
+                     <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                           <Trophy className="w-5 h-5" />
+                           Team Performance
+                        </CardTitle>
+                        <CardDescription>
+                           Win-loss records and performance metrics
+                        </CardDescription>
+                     </CardHeader>
+                     <CardContent>
+                        <div className="space-y-4">
+                           {statistics?.teamPerformance
+                              ?.slice(0, 8)
+                              .map((team, index) => (
+                                 <div
+                                    key={team.team_id}
+                                    className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                                 >
+                                    <div className="flex items-center gap-3">
+                                       <div className="flex items-center justify-center w-8 h-8 bg-primary text-primary-foreground rounded-full text-sm font-bold">
+                                          {index + 1}
+                                       </div>
+                                       <div>
+                                          <div className="font-medium">
+                                             {team.team_name}
+                                          </div>
+                                          <div className="text-sm text-gray-500">
+                                             {team.team_code} • {team.city}
+                                          </div>
+                                       </div>
+                                    </div>
+                                    <div className="text-right">
+                                       <div className="font-bold text-lg">
+                                          {team.win_percentage}%
+                                       </div>
+                                       <div className="text-xs text-gray-500">
+                                          {team.matches_won}W-
+                                          {team.matches_lost}L | {team.points}{" "}
+                                          pts
+                                       </div>
+                                    </div>
+                                 </div>
+                              )) || (
+                              <div className="text-center py-8 text-gray-500">
+                                 No team performance data available
+                              </div>
+                           )}
+                        </div>
+                     </CardContent>
+                  </Card>
+               </TabsContent>
+
+               <TabsContent value="matches" className="space-y-4">
+                  <Card>
+                     <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                           <Target className="w-5 h-5" />
+                           Recent Matches
+                        </CardTitle>
+                        <CardDescription>
+                           Latest match results and outcomes
+                        </CardDescription>
+                     </CardHeader>
+                     <CardContent>
+                        <div className="space-y-4">
+                           {statistics?.recentMatches
+                              ?.slice(0, 10)
+                              .map((match) => (
+                                 <div
+                                    key={match.match_id}
+                                    className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                                 >
+                                    <div>
+                                       <div className="font-medium">
+                                          {match.team1_name} vs{" "}
+                                          {match.team2_name}
+                                       </div>
+                                       <div className="text-sm text-gray-500">
+                                          {match.stadium_name}, {match.city}
+                                       </div>
+                                       <div className="text-xs text-gray-400">
+                                          {new Date(
+                                             match.match_date
+                                          ).toLocaleDateString()}
+                                       </div>
+                                    </div>
+                                    <div className="text-right">
+                                       {match.is_completed ? (
+                                          <>
+                                             <div className="font-bold text-green-600">
+                                                {match.winner_name ||
+                                                   "No Result"}
+                                             </div>
+                                             <div className="text-xs text-gray-500">
+                                                {match.series_name}
+                                             </div>
+                                          </>
+                                       ) : (
+                                          <div className="font-bold text-yellow-600">
+                                             Upcoming
+                                          </div>
+                                       )}
+                                    </div>
+                                 </div>
+                              )) || (
+                              <div className="text-center py-8 text-gray-500">
+                                 No recent matches data available
+                              </div>
+                           )}
+                        </div>
+                     </CardContent>
+                  </Card>
+               </TabsContent>
             </Tabs>
 
-            {battingStats.length === 0 &&
-               bowlingStats.length === 0 &&
+            {(!statistics?.topScorers || statistics.topScorers.length === 0) &&
+               (!statistics?.topBowlers ||
+                  statistics.topBowlers.length === 0) &&
                !loading && (
                   <div className="text-center py-12">
                      <BarChart3 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
@@ -363,6 +425,46 @@ export default function StatisticsPage() {
                      <Button onClick={fetchStatistics}>Refresh</Button>
                   </div>
                )}
+
+            {/* Quick Actions */}
+            {statistics && (
+               <Card>
+                  <CardHeader>
+                     <CardTitle>Quick Actions</CardTitle>
+                     <CardDescription>
+                        Access detailed statistics and analytics
+                     </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <Button asChild variant="outline" className="h-20">
+                           <Link href="/players">
+                              <div className="text-center">
+                                 <Award className="h-6 w-6 mx-auto mb-2" />
+                                 <div>Player Stats</div>
+                              </div>
+                           </Link>
+                        </Button>
+                        <Button asChild variant="outline" className="h-20">
+                           <Link href="/teams">
+                              <div className="text-center">
+                                 <Trophy className="h-6 w-6 mx-auto mb-2" />
+                                 <div>Team Performance</div>
+                              </div>
+                           </Link>
+                        </Button>
+                        <Button asChild variant="outline" className="h-20">
+                           <Link href="/matches">
+                              <div className="text-center">
+                                 <Target className="h-6 w-6 mx-auto mb-2" />
+                                 <div>Match Results</div>
+                              </div>
+                           </Link>
+                        </Button>
+                     </div>
+                  </CardContent>
+               </Card>
+            )}
          </div>
       </div>
    );

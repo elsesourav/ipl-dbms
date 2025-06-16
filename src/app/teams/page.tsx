@@ -40,8 +40,9 @@ export default function TeamsPage() {
    const fetchTeams = async () => {
       try {
          const response = await fetch("/api/teams");
+         
          if (response.ok) {
-            const data = await response.json();
+            const { data } = await response.json();
             setTeams(data);
          } else {
             setError("Failed to fetch teams");

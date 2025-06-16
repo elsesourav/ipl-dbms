@@ -46,7 +46,7 @@ export default function MatchesPage() {
       try {
          const response = await fetch("/api/matches");
          if (response.ok) {
-            const data = await response.json();
+            const { data } = await response.json();
             setMatches(data);
          } else {
             setError("Failed to fetch matches");
@@ -277,6 +277,15 @@ export default function MatchesPage() {
                               {match.toss_decision} first
                            </div>
                         )}
+
+                        {/* View Details Button */}
+                        <div className="pt-2">
+                           <Button asChild className="w-full" variant="outline">
+                              <Link href={`/matches/${match.match_id}`}>
+                                 View Match Details
+                              </Link>
+                           </Button>
+                        </div>
                      </CardContent>
                   </Card>
                ))}

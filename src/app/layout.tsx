@@ -1,5 +1,6 @@
 import { Providers } from "@/components/providers";
 import { Toaster } from "@/components/ui/toaster";
+import Navbar from "@/components/navbar";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -21,6 +22,7 @@ export default function RootLayout({
       <html lang="en" suppressHydrationWarning>
          <body className={inter.className}>
             <Providers session={null}>
+               <Navbar />
                {children}
                <Toaster />
             </Providers>

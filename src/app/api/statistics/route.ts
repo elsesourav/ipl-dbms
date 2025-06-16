@@ -9,90 +9,119 @@ export async function GET(request: NextRequest) {
    try {
       const connection = pool;
 
+      console.log("Fetching statistics...");
+
       // Get basic statistics
       const [teamStats] = await connection.execute(
-         "SELECT COUNT(*) as total_teams FROM teams"
+         "SELECT COUNT(*) as total_teams FROM Teams"
       );
+
       const [playerStats] = await connection.execute(
-         "SELECT COUNT(*) as total_players FROM players"
+         "SELECT COUNT(*) as total_players FROM Players"
       );
+
       const [matchStats] = await connection.execute(
-         "SELECT COUNT(*) as total_matches FROM matches"
+         "SELECT COUNT(*) as total_matches FROM Matches"
       );
+
       const [seriesStats] = await connection.execute(
-         "SELECT COUNT(*) as total_series FROM series"
+         "SELECT COUNT(*) as total_series FROM Series"
       );
 
-      // Get top scorers
+      // Get top scorers from BattingScorecard
       const [topScorers] = await connection.execute(`
-      SELECT 
-        p.name,
-        p.team,
-        SUM(CASE 
-          WHEN sc.batsman_id = p.player_id THEN sc.runs_scored 
-          ELSE 0 
-        END) as total_runs,
-        COUNT(DISTINCT CASE 
-          WHEN sc.batsman_id = p.player_id THEN sc.match_id 
-          ELSE NULL 
-        END) as matches_played
-      FROM players p
-      LEFT JOIN scorecards sc ON p.player_id = sc.batsman_id
-      GROUP BY p.player_id, p.name, p.team
-      ORDER BY total_runs DESC
-      LIMIT 10
-    `);
+         SELECT 
+            p.player_id,
+            p.player_name as name,
+            t.team_name as team,
+            SUM(bs.runs_scored) as total_runs,
+            SUM(bs.balls_faced) as total_balls,
+            SUM(bs.fours) as total_fours,
+            SUM(bs.sixes) as total_sixes,
+            MAX(bs.runs_scored) as highest_score,
+            COUNT(DISTINCT bs.match_id) as matches_played,
+            CASE 
+               WHEN SUM(bs.balls_faced) > 0 THEN ROUND((SUM(bs.runs_scored) * 100.0 / SUM(bs.balls_faced)), 2)
+               ELSE 0 
+            END as strike_rate
+         FROM Players p
+         LEFT JOIN Teams t ON p.team_id = t.team_id
+         LEFT JOIN BattingScorecard bs ON p.player_id = bs.player_id
+         WHERE bs.runs_scored IS NOT NULL
+         GROUP BY p.player_id, p.player_name, t.team_name
+         HAVING total_runs > 0
+         ORDER BY total_runs DESC
+         LIMIT 10
+      `);
 
-      // Get top wicket takers
+      // Get top wicket takers from BowlingScorecard
       const [topBowlers] = await connection.execute(`
-      SELECT 
-        p.name,
-        p.team,
-        SUM(CASE 
-          WHEN sc.bowler_id = p.player_id THEN 1 
-          ELSE 0 
-        END) as total_wickets,
-        COUNT(DISTINCT CASE 
-          WHEN sc.bowler_id = p.player_id THEN sc.match_id 
-          ELSE NULL 
-        END) as matches_bowled
-      FROM players p
-      LEFT JOIN scorecards sc ON p.player_id = sc.bowler_id
-      WHERE sc.wicket_type IS NOT NULL
-      GROUP BY p.player_id, p.name, p.team
-      ORDER BY total_wickets DESC
-      LIMIT 10
-    `);
+         SELECT 
+            p.player_id,
+            p.player_name as name,
+            t.team_name as team,
+            SUM(bow.wickets_taken) as total_wickets,
+            SUM(bow.overs_bowled) as total_overs,
+            SUM(bow.runs_conceded) as total_runs_conceded,
+            COUNT(DISTINCT bow.match_id) as matches_bowled,
+            CASE 
+               WHEN SUM(bow.overs_bowled) > 0 THEN ROUND((SUM(bow.runs_conceded) / SUM(bow.overs_bowled)), 2)
+               ELSE 0 
+            END as economy_rate
+         FROM Players p
+         LEFT JOIN Teams t ON p.team_id = t.team_id
+         LEFT JOIN BowlingScorecard bow ON p.player_id = bow.player_id
+         WHERE bow.wickets_taken IS NOT NULL
+         GROUP BY p.player_id, p.player_name, t.team_name
+         HAVING total_wickets > 0
+         ORDER BY total_wickets DESC
+         LIMIT 10
+      `);
 
       // Get team performance
       const [teamPerformance] = await connection.execute(`
-      SELECT 
-        t.name as team_name,
-        COUNT(m.match_id) as matches_played,
-        SUM(CASE 
-          WHEN m.winner = t.name THEN 1 
-          ELSE 0 
-        END) as matches_won,
-        ROUND(
-          (SUM(CASE WHEN m.winner = t.name THEN 1 ELSE 0 END) * 100.0) / 
-          NULLIF(COUNT(m.match_id), 0), 2
-        ) as win_percentage
-      FROM teams t
-      LEFT JOIN matches m ON (m.team1 = t.name OR m.team2 = t.name)
-      GROUP BY t.name
-      ORDER BY win_percentage DESC
-    `);
+         SELECT 
+            t.team_name,
+            t.team_code,
+            COUNT(m.match_id) as matches_played,
+            SUM(CASE WHEN m.winner_id = t.team_id THEN 1 ELSE 0 END) as matches_won,
+            SUM(CASE WHEN m.winner_id != t.team_id AND m.winner_id IS NOT NULL THEN 1 ELSE 0 END) as matches_lost,
+            ROUND(
+               (SUM(CASE WHEN m.winner_id = t.team_id THEN 1 ELSE 0 END) * 100.0) / 
+               NULLIF(COUNT(m.match_id), 0), 2
+            ) as win_percentage
+         FROM Teams t
+         LEFT JOIN Matches m ON (m.team1_id = t.team_id OR m.team2_id = t.team_id)
+         GROUP BY t.team_id, t.team_name, t.team_code
+         HAVING matches_played > 0
+         ORDER BY win_percentage DESC
+      `);
 
       // Get recent matches
       const [recentMatches] = await connection.execute(`
-      SELECT 
-        m.*,
-        s.series_name
-      FROM matches m
-      LEFT JOIN series s ON m.series_id = s.series_id
-      ORDER BY m.date DESC
-      LIMIT 10
-    `);
+         SELECT 
+            m.match_id,
+            m.match_date,
+            m.match_type,
+            s.series_name,
+            s.season_year,
+            t1.team_name as team1_name,
+            t1.team_code as team1_code,
+            t2.team_name as team2_name,
+            t2.team_code as team2_code,
+            tw.team_name as winner_name,
+            st.stadium_name,
+            st.city,
+            m.is_completed
+         FROM Matches m
+         LEFT JOIN Series s ON m.series_id = s.series_id
+         LEFT JOIN Teams t1 ON m.team1_id = t1.team_id
+         LEFT JOIN Teams t2 ON m.team2_id = t2.team_id
+         LEFT JOIN Teams tw ON m.winner_id = tw.team_id
+         LEFT JOIN Stadiums st ON m.stadium_id = st.stadium_id
+         ORDER BY m.match_date DESC, m.match_id DESC
+         LIMIT 10
+      `);
 
       const statistics = {
          overview: {
