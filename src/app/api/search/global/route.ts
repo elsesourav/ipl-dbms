@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import pool from "../../../../lib/db";
+import pool from "@/lib/db";
 
 // GET /api/search/global - Global search across all entities
 export async function GET(request: NextRequest) {

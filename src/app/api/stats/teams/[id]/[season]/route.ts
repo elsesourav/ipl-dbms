@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import db from "../../../../../../lib/db";
+import pool from "@/lib/db";
 
 export async function GET(
    request: NextRequest,
@@ -17,7 +17,7 @@ export async function GET(
       }
 
       // Get team information
-      const [teamInfo] = await db.execute(
+      const [teamInfo] = await pool.execute(
          `SELECT * FROM teams WHERE team_id = ?`,
          [teamId]
       );
@@ -29,7 +29,7 @@ export async function GET(
       const team = (teamInfo as any[])[0];
 
       // Get comprehensive team statistics for the season
-      const [teamStats] = await db.execute(
+      const [teamStats] = await pool.execute(
          `SELECT 
         COUNT(DISTINCT m.match_id) as matches_played,
         COUNT(CASE WHEN m.winning_team_id = ? THEN 1 END) as matches_won,
@@ -86,7 +86,7 @@ export async function GET(
       );
 
       // Get match results breakdown
-      const [matchResults] = await db.execute(
+      const [matchResults] = await pool.execute(
          `SELECT 
         COUNT(CASE WHEN m.result_type = 'runs' AND m.winning_team_id = ? THEN 1 END) as wins_by_runs,
         COUNT(CASE WHEN m.result_type = 'wickets' AND m.winning_team_id = ? THEN 1 END) as wins_by_wickets,
@@ -110,7 +110,7 @@ export async function GET(
       );
 
       // Get venue performance
-      const [venuePerformance] = await db.execute(
+      const [venuePerformance] = await pool.execute(
          `SELECT 
         s.stadium_id,
         s.name as stadium_name,
@@ -129,7 +129,7 @@ export async function GET(
       );
 
       // Get top performers
-      const [topBatsmen] = await db.execute(
+      const [topBatsmen] = await pool.execute(
          `SELECT 
         p.player_id,
         p.name,
@@ -149,7 +149,7 @@ export async function GET(
          [teamId, season]
       );
 
-      const [topBowlers] = await db.execute(
+      const [topBowlers] = await pool.execute(
          `SELECT 
         p.player_id,
         p.name,
@@ -170,7 +170,7 @@ export async function GET(
       );
 
       // Get recent matches
-      const [recentMatches] = await db.execute(
+      const [recentMatches] = await pool.execute(
          `SELECT 
         m.*,
         opp.name as opponent_name,

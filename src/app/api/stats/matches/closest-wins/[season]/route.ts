@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import db from "../../../../../../lib/db";
+import pool from "@/lib/db";
 
 export async function GET(
    request: NextRequest,
@@ -15,7 +15,7 @@ export async function GET(
       }
 
       // Get closest wins by runs
-      const [closestWinsByRuns] = await db.execute(
+      const [closestWinsByRuns] = await pool.execute(
          `SELECT 
         m.match_id,
         m.match_number,
@@ -52,7 +52,7 @@ export async function GET(
       );
 
       // Get closest wins by balls
-      const [closestWinsByBalls] = await db.execute(
+      const [closestWinsByBalls] = await pool.execute(
          `SELECT 
         m.match_id,
         m.match_number,
@@ -117,7 +117,7 @@ export async function GET(
          .slice(0, limit);
 
       // Get Super Over matches (ultimate close matches)
-      const [superOverMatches] = await db.execute(
+      const [superOverMatches] = await pool.execute(
          `SELECT 
         m.match_id,
         m.match_number,
@@ -141,7 +141,7 @@ export async function GET(
       );
 
       // Get season statistics
-      const [seasonStats] = await db.execute(
+      const [seasonStats] = await pool.execute(
          `SELECT 
         COUNT(*) as total_matches,
         COUNT(CASE WHEN result_type = 'runs' AND win_margin <= 10 THEN 1 END) as close_wins_by_runs,

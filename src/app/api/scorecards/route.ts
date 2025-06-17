@@ -1,137 +1,62 @@
+import pool from "@/lib/db";
 import { RowDataPacket } from "mysql2";
 import { NextRequest, NextResponse } from "next/server";
-import pool from "../../../lib/db";
 
 // GET /api/scorecards - Get all scorecards (with filters)
 export async function GET(request: NextRequest) {
    try {
-      const { searchParams } = new URL(request.url);
-      const matchId = searchParams.get("matchId");
-      const playerId = searchParams.get("playerId");
-      const teamId = searchParams.get("teamId");
-      const type = searchParams.get("type"); // 'batting' or 'bowling'
-      const season = searchParams.get("season");
+      console.log("Scorecards API called");
 
-      if (matchId) {
-         // Get detailed scorecard for a specific match
-         return await getMatchScorecard(parseInt(matchId));
-      }
-
-      // Get scorecards with filters
-      let battingQuery = `
+      // Start with a simple batting scorecard query
+      const query = `
       SELECT 
         bs.scorecard_id,
         bs.match_id,
-        m.match_date,
-        m.match_number,
         bs.player_id,
         p.player_name,
-        p.role,
         bs.team_id,
         t.team_name,
         t.team_code,
-        bs.batting_position,
         bs.runs_scored,
         bs.balls_faced,
         bs.fours,
         bs.sixes,
-        bs.is_out,
-        bs.out_type,
         bs.strike_rate,
-        opp.team_name as opponent_team,
-        s.season_year,
         'batting' as scorecard_type
       FROM BattingScorecard bs
       JOIN Players p ON bs.player_id = p.player_id
       JOIN Teams t ON bs.team_id = t.team_id
-      JOIN Matches m ON bs.match_id = m.match_id
-      JOIN Series s ON m.series_id = s.series_id
-      JOIN Teams opp ON (m.team1_id = opp.team_id AND m.team1_id != bs.team_id) 
-                     OR (m.team2_id = opp.team_id AND m.team2_id != bs.team_id)
-      WHERE 1=1
+      ORDER BY bs.scorecard_id
+      LIMIT 20
     `;
 
-      let bowlingQuery = `
-      SELECT 
-        bow.scorecard_id,
-        bow.match_id,
-        m.match_date,
-        m.match_number,
-        bow.player_id,
-        p.player_name,
-        p.role,
-        bow.team_id,
-        t.team_name,
-        t.team_code,
-        bow.overs_bowled,
-        bow.runs_conceded,
-        bow.wickets_taken,
-        bow.maiden_overs,
-        bow.wides,
-        bow.no_balls,
-        bow.economy_rate,
-        opp.team_name as opponent_team,
-        s.season_year,
-        'bowling' as scorecard_type
-      FROM BowlingScorecard bow
-      JOIN Players p ON bow.player_id = p.player_id
-      JOIN Teams t ON bow.team_id = t.team_id
-      JOIN Matches m ON bow.match_id = m.match_id
-      JOIN Series s ON m.series_id = s.series_id
-      JOIN Teams opp ON (m.team1_id = opp.team_id AND m.team1_id != bow.team_id) 
-                     OR (m.team2_id = opp.team_id AND m.team2_id != bow.team_id)
-      WHERE 1=1
-    `;
+      console.log("Executing scorecards query:", query);
 
-      const params: any[] = [];
+      const [rows] = await pool.execute(query);
+      console.log(
+         "Query executed successfully, found rows:",
+         Array.isArray(rows) ? rows.length : "not array"
+      );
 
-      if (playerId) {
-         battingQuery += " AND bs.player_id = ?";
-         bowlingQuery += " AND bow.player_id = ?";
-         params.push(parseInt(playerId));
-      }
-
-      if (teamId) {
-         battingQuery += " AND bs.team_id = ?";
-         bowlingQuery += " AND bow.team_id = ?";
-         params.push(parseInt(teamId));
-      }
-
-      if (season) {
-         battingQuery += " AND s.season_year = ?";
-         bowlingQuery += " AND s.season_year = ?";
-         params.push(parseInt(season));
-      }
-
-      let finalQuery = "";
-      if (!type || type === "both") {
-         finalQuery = `(${battingQuery}) UNION ALL (${bowlingQuery}) ORDER BY match_date DESC, match_id DESC`;
-      } else if (type === "batting") {
-         finalQuery =
-            battingQuery + " ORDER BY m.match_date DESC, bs.runs_scored DESC";
-      } else if (type === "bowling") {
-         finalQuery =
-            bowlingQuery +
-            " ORDER BY m.match_date DESC, bow.wickets_taken DESC, bow.economy_rate ASC";
-      }
-
-      const [rows] = await pool.execute<RowDataPacket[]>(finalQuery, [
-         ...params,
-         ...params,
-      ]);
+      // Simple count query
+      const [countResult] = await pool.execute(
+         "SELECT COUNT(*) as total FROM BattingScorecard"
+      );
+      const totalScorecards = (countResult as RowDataPacket[])[0].total;
 
       return NextResponse.json({
          success: true,
          data: rows,
-         count: rows.length,
+         count: Array.isArray(rows) ? rows.length : 0,
+         total: totalScorecards,
       });
    } catch (error) {
-      console.error("Database error:", error);
+      console.error("Error fetching scorecards:", error);
       return NextResponse.json(
          {
             success: false,
             error: "Failed to fetch scorecards",
-            details: error instanceof Error ? error.message : "Unknown error",
+            details: error.message,
          },
          { status: 500 }
       );

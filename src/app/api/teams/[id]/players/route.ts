@@ -1,5 +1,5 @@
+import pool from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
-import pool from "../../../../../lib/db";
 
 // GET /api/teams/[id]/players - Get all players for a team
 export async function GET(
@@ -14,7 +14,7 @@ export async function GET(
       // Check if team exists
       const teamQuery = `
       SELECT team_id, team_name, team_code
-      FROM teams 
+      FROM Teams 
       WHERE team_id = ? AND is_active = true
     `;
 
@@ -29,7 +29,7 @@ export async function GET(
 
       const team = (teamInfo as any[])[0];
 
-      // Get team players
+      // Get team players through PlayerContracts
       const playersQuery = `
       SELECT 
         p.player_id,
@@ -40,18 +40,24 @@ export async function GET(
         p.date_of_birth,
         p.nationality,
         p.is_active,
+        pc.jersey_number,
+        pc.price_crores,
+        pc.is_captain,
+        pc.is_vice_captain,
         TIMESTAMPDIFF(YEAR, p.date_of_birth, CURDATE()) as age
-      FROM players p
-      WHERE p.current_team_id = ?
+      FROM Players p
+      JOIN PlayerContracts pc ON p.player_id = pc.player_id
+      WHERE pc.team_id = ?
         AND p.is_active = true
       ORDER BY 
-        CASE p.role 
-          WHEN 'Captain' THEN 1 
-          WHEN 'Wicket-keeper' THEN 2 
-          WHEN 'Batsman' THEN 3 
-          WHEN 'All-rounder' THEN 4 
-          WHEN 'Bowler' THEN 5 
-          ELSE 6 
+        CASE 
+          WHEN pc.is_captain = 1 THEN 1 
+          WHEN pc.is_vice_captain = 1 THEN 2
+          WHEN p.role = 'Wicket-keeper' THEN 3 
+          WHEN p.role = 'Batsman' THEN 4 
+          WHEN p.role = 'All-rounder' THEN 5 
+          WHEN p.role = 'Bowler' THEN 6 
+          ELSE 7 
         END,
         p.player_name
     `;

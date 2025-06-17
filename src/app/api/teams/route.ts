@@ -1,6 +1,6 @@
+import pool from "@/lib/db";
 import { ResultSetHeader, RowDataPacket } from "mysql2";
 import { NextRequest, NextResponse } from "next/server";
-import pool from "./../../../lib/db";
 
 interface Team extends RowDataPacket {
    team_id: number;
@@ -20,6 +20,7 @@ interface Team extends RowDataPacket {
 // GET /api/teams - Get all teams with optional filters
 export async function GET(request: NextRequest) {
    try {
+      console.log("🔍 Teams route called");
       const { searchParams } = new URL(request.url);
       const isActive = searchParams.get("active");
       const city = searchParams.get("city");

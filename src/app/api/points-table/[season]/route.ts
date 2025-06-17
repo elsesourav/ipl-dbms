@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import pool from "../../../../lib/db";
+import pool from "@/lib/db";
 
 // GET /api/points-table/[season] - Get points table for specific season ID
 export async function GET(

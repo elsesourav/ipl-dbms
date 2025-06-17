@@ -1,7 +1,6 @@
+import pool from "@/lib/db";
 import { ResultSetHeader, RowDataPacket } from "mysql2";
 import { NextRequest, NextResponse } from "next/server";
-import pool from "../../../lib/db";
-import { formatDate, formatTime } from "../../../lib/utils";
 
 interface Match extends RowDataPacket {
    match_id: number;
@@ -46,19 +45,10 @@ interface MatchWithDetails extends Match {
 // GET /api/matches - Get all matches with filters
 export async function GET(request: NextRequest) {
    try {
-      const { searchParams } = new URL(request.url);
-      const team = searchParams.get("team");
-      const season = searchParams.get("season");
-      const venue = searchParams.get("venue");
-      const status = searchParams.get("status");
-      const matchType = searchParams.get("type");
-      const fromDate = searchParams.get("from_date");
-      const toDate = searchParams.get("to_date");
-      const page = parseInt(searchParams.get("page") || "1");
-      const limit = parseInt(searchParams.get("limit") || "20");
-      const offset = (page - 1) * limit;
+      console.log("Matches API called");
 
-      let query = `
+      // Start with a simple query without complex joins
+      const query = `
       SELECT 
         m.*,
         t1.team_name as team1_name,
@@ -66,115 +56,43 @@ export async function GET(request: NextRequest) {
         t2.team_name as team2_name,
         t2.team_code as team2_code,
         s.stadium_name,
-        s.city as stadium_city,
-        se.series_name,
-        se.season_year,
-        tw.team_name as toss_winner_name,
-        w.team_name as winner_name,
-        p.player_name as man_of_match_name
+        s.city as stadium_city
       FROM Matches m
       JOIN Teams t1 ON m.team1_id = t1.team_id
       JOIN Teams t2 ON m.team2_id = t2.team_id
       JOIN Stadiums s ON m.stadium_id = s.stadium_id
-      JOIN Series se ON m.series_id = se.series_id
-      LEFT JOIN Teams tw ON m.toss_winner_id = tw.team_id
-      LEFT JOIN Teams w ON m.winner_id = w.team_id
-      LEFT JOIN Players p ON m.man_of_match_id = p.player_id
+      ORDER BY m.match_date DESC, m.match_time DESC
+      LIMIT 20
     `;
 
-      const conditions: string[] = [];
-      const params: any[] = [];
+      console.log("Executing matches query:", query);
 
-      if (team) {
-         conditions.push(
-            "(t1.team_name LIKE ? OR t1.team_code LIKE ? OR t2.team_name LIKE ? OR t2.team_code LIKE ?)"
-         );
-         params.push(`%${team}%`, `%${team}%`, `%${team}%`, `%${team}%`);
-      }
-
-      if (season) {
-         conditions.push("se.season_year = ?");
-         params.push(parseInt(season));
-      }
-
-      if (venue) {
-         conditions.push("(s.stadium_name LIKE ? OR s.city LIKE ?)");
-         params.push(`%${venue}%`, `%${venue}%`);
-      }
-
-      if (status) {
-         conditions.push("m.match_status = ?");
-         params.push(status);
-      }
-
-      if (matchType) {
-         conditions.push("m.match_type = ?");
-         params.push(matchType);
-      }
-
-      if (fromDate) {
-         conditions.push("m.match_date >= ?");
-         params.push(fromDate);
-      }
-
-      if (toDate) {
-         conditions.push("m.match_date <= ?");
-         params.push(toDate);
-      }
-
-      if (conditions.length > 0) {
-         query += " WHERE " + conditions.join(" AND ");
-      }
-
-      query +=
-         " ORDER BY m.match_date DESC, m.match_time DESC LIMIT ? OFFSET ?";
-      params.push(limit, offset);
-
-      const [rows] = await pool.execute<MatchWithDetails[]>(query, params);
-
-      // Get total count
-      let countQuery = `
-      SELECT COUNT(*) as total
-      FROM Matches m
-      JOIN Teams t1 ON m.team1_id = t1.team_id
-      JOIN Teams t2 ON m.team2_id = t2.team_id
-      JOIN Stadiums s ON m.stadium_id = s.stadium_id
-      JOIN Series se ON m.series_id = se.series_id
-    `;
-
-      if (conditions.length > 0) {
-         countQuery += " WHERE " + conditions.slice(0, -2).join(" AND ");
-      }
-
-      const [countResult] = await pool.execute<RowDataPacket[]>(
-         countQuery,
-         params.slice(0, -2)
+      const [rows] = await pool.execute(query);
+      console.log(
+         "Query executed successfully, found rows:",
+         Array.isArray(rows) ? rows.length : "not array"
       );
 
-      const totalMatches = countResult[0].total;
-      const totalPages = Math.ceil(totalMatches / limit);
+      // Simple count query
+      const [countResult] = await pool.execute(
+         "SELECT COUNT(*) as total FROM Matches"
+      );
+      const totalMatches = (countResult as RowDataPacket[])[0].total;
 
       return NextResponse.json({
          success: true,
-         data: rows.map((match) => ({
-            ...match,
-            formatted_date: formatDate(match.match_date),
-            formatted_time: match.match_time
-               ? formatTime(match.match_time)
-               : null,
-         })),
-         pagination: {
-            currentPage: page,
-            totalPages,
-            totalMatches,
-            hasNextPage: page < totalPages,
-            hasPreviousPage: page > 1,
-         },
+         data: rows,
+         count: Array.isArray(rows) ? rows.length : 0,
+         total: totalMatches,
       });
    } catch (error) {
       console.error("Error fetching matches:", error);
       return NextResponse.json(
-         { success: false, error: "Failed to fetch matches" },
+         {
+            success: false,
+            error: "Failed to fetch matches",
+            details: error.message,
+         },
          { status: 500 }
       );
    }

@@ -1,6 +1,6 @@
 import { RowDataPacket } from "mysql2";
 import { NextRequest, NextResponse } from "next/server";
-import pool from "../../../../lib/db";
+import pool from "@/lib/db";
 
 // GET /api/matches/stats - Get aggregated match statistics
 export async function GET(request: NextRequest) {

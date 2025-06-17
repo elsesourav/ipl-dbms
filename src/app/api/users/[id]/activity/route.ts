@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import db from "../../../../../lib/db";
+import pool from "@/lib/db";
 
 export async function GET(
    request: NextRequest,
@@ -20,7 +20,7 @@ export async function GET(
       }
 
       // Get user activity log
-      const [activities] = await db.execute(
+      const [activities] = await pool.execute(
          `SELECT 
         ua.*,
         u.username,
@@ -34,7 +34,7 @@ export async function GET(
       );
 
       // Get total count
-      const [countResult] = await db.execute(
+      const [countResult] = await pool.execute(
          `SELECT COUNT(*) as total FROM user_activity WHERE user_id = ?`,
          [userId]
       );
@@ -43,7 +43,7 @@ export async function GET(
       const totalPages = Math.ceil(total / limit);
 
       // Get user info
-      const [userInfo] = await db.execute(
+      const [userInfo] = await pool.execute(
          `SELECT user_id, username, email, full_name, role, created_at, last_login
        FROM users WHERE user_id = ?`,
          [userId]

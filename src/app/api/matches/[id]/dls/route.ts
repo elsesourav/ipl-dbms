@@ -1,6 +1,6 @@
 import { RowDataPacket } from "mysql2";
 import { NextRequest, NextResponse } from "next/server";
-import pool from "../../../../../lib/db";
+import pool from "@/lib/db";
 
 // GET /api/matches/[id]/dls - Get DLS application details
 export async function GET(

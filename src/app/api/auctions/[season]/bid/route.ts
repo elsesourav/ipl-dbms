@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import db from "../../../../../lib/db";
+import pool from "@/lib/db";
 
 export async function POST(
    request: NextRequest,
@@ -32,7 +32,7 @@ export async function POST(
       }
 
       // Check if player exists
-      const [playerCheck] = await db.execute(
+      const [playerCheck] = await pool.execute(
          `SELECT player_id, name FROM players WHERE player_id = ?`,
          [player_id]
       );
@@ -45,7 +45,7 @@ export async function POST(
       }
 
       // Check if team exists
-      const [teamCheck] = await db.execute(
+      const [teamCheck] = await pool.execute(
          `SELECT team_id, name FROM teams WHERE team_id = ?`,
          [team_id]
       );
@@ -55,7 +55,7 @@ export async function POST(
       }
 
       // Get current highest bid for this player in this auction
-      const [currentBid] = await db.execute(
+      const [currentBid] = await pool.execute(
          `SELECT MAX(bid_amount) as highest_bid
        FROM auction_bids
        WHERE player_id = ? AND auction_year = ?`,
@@ -89,7 +89,7 @@ export async function POST(
       }
 
       // Record the bid
-      const [result] = await db.execute(
+      const [result] = await pool.execute(
          `INSERT INTO auction_bids 
        (player_id, team_id, auction_year, bid_amount, bid_type, bid_timestamp)
        VALUES (?, ?, ?, ?, ?, NOW())`,
@@ -97,7 +97,7 @@ export async function POST(
       );
 
       // Update auction history with the new bid
-      await db.execute(
+      await pool.execute(
          `INSERT INTO auction_history 
        (player_id, team_id, auction_year, final_price, status)
        VALUES (?, ?, ?, ?, 'bidding')
@@ -162,7 +162,7 @@ export async function GET(
 
       query += ` ORDER BY ab.bid_timestamp DESC LIMIT 50`;
 
-      const [bids] = await db.execute(query, queryParams);
+      const [bids] = await pool.execute(query, queryParams);
 
       return NextResponse.json({
          success: true,

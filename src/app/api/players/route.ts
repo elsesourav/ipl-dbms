@@ -1,6 +1,6 @@
+import pool from "@/lib/db";
 import { ResultSetHeader, RowDataPacket } from "mysql2";
 import { NextRequest, NextResponse } from "next/server";
-import pool from "../../../lib/db";
 
 interface Player extends RowDataPacket {
    player_id: number;
@@ -28,119 +28,39 @@ interface PlayerWithTeam extends Player {
 // GET /api/players - Get all players with filters
 export async function GET(request: NextRequest) {
    try {
-      const { searchParams } = new URL(request.url);
-      const role = searchParams.get("role");
-      const nationality = searchParams.get("nationality");
-      const team = searchParams.get("team");
-      const season = searchParams.get("season");
-      const isActive = searchParams.get("active");
-      const search = searchParams.get("search");
-      const page = parseInt(searchParams.get("page") || "1");
-      const limit = parseInt(searchParams.get("limit") || "50");
-      const offset = (page - 1) * limit;
+      console.log("Players API called");
 
-      let query = `
-      SELECT DISTINCT
-        p.*,
-        pc.team_id as current_team_id,
-        t.team_name as current_team_name,
-        t.team_code as current_team_code,
-        pc.jersey_number,
-        pc.price_crores,
-        pc.is_captain,
-        pc.is_vice_captain,
-        s.season_year
-      FROM Players p
-      LEFT JOIN PlayerContracts pc ON p.player_id = pc.player_id
-      LEFT JOIN Teams t ON pc.team_id = t.team_id
-      LEFT JOIN Series s ON pc.series_id = s.series_id
-    `;
+      // Start with a very simple query without parameters
+      const query = "SELECT * FROM Players ORDER BY player_name LIMIT 20";
 
-      const conditions: string[] = [];
-      const params: any[] = [];
+      console.log("Executing simple query:", query);
 
-      if (isActive !== null) {
-         conditions.push("p.is_active = ?");
-         params.push(isActive === "true");
-      }
-
-      if (role) {
-         conditions.push("p.role = ?");
-         params.push(role);
-      }
-
-      if (nationality) {
-         conditions.push("p.nationality LIKE ?");
-         params.push(`%${nationality}%`);
-      }
-
-      if (team) {
-         conditions.push("(t.team_name LIKE ? OR t.team_code LIKE ?)");
-         params.push(`%${team}%`, `%${team}%`);
-      }
-
-      if (season) {
-         conditions.push("s.season_year = ?");
-         params.push(parseInt(season));
-      } else {
-         // Default to current season if no season specified
-         conditions.push("(s.is_completed = false OR s.series_id IS NULL)");
-      }
-
-      if (search) {
-         conditions.push("p.player_name LIKE ?");
-         params.push(`%${search}%`);
-      }
-
-      if (conditions.length > 0) {
-         query += " WHERE " + conditions.join(" AND ");
-      }
-
-      query += " ORDER BY p.player_name LIMIT ? OFFSET ?";
-      params.push(limit, offset);
-
-      const [rows] = await pool.execute<PlayerWithTeam[]>(query, params);
-
-      // Get total count for pagination
-      let countQuery = `
-      SELECT COUNT(DISTINCT p.player_id) as total
-      FROM Players p
-      LEFT JOIN PlayerContracts pc ON p.player_id = pc.player_id
-      LEFT JOIN Teams t ON pc.team_id = t.team_id
-      LEFT JOIN Series s ON pc.series_id = s.series_id
-    `;
-
-      if (conditions.length > 0) {
-         // Remove LIMIT and OFFSET from conditions for count
-         const countConditions = conditions.slice(0, -2);
-         if (countConditions.length > 0) {
-            countQuery += " WHERE " + countConditions.join(" AND ");
-         }
-      }
-
-      const [countResult] = await pool.execute<RowDataPacket[]>(
-         countQuery,
-         params.slice(0, -2) // Remove limit and offset params
+      const [rows] = await pool.execute(query);
+      console.log(
+         "Query executed successfully, found rows:",
+         Array.isArray(rows) ? rows.length : "not array"
       );
 
-      const totalPlayers = countResult[0].total;
-      const totalPages = Math.ceil(totalPlayers / limit);
+      // Simple count query
+      const [countResult] = await pool.execute(
+         "SELECT COUNT(*) as total FROM Players"
+      );
+      const totalPlayers = (countResult as RowDataPacket[])[0].total;
 
       return NextResponse.json({
          success: true,
          data: rows,
-         pagination: {
-            currentPage: page,
-            totalPages,
-            totalPlayers,
-            hasNextPage: page < totalPages,
-            hasPreviousPage: page > 1,
-         },
+         count: Array.isArray(rows) ? rows.length : 0,
+         total: totalPlayers,
       });
    } catch (error) {
       console.error("Error fetching players:", error);
       return NextResponse.json(
-         { success: false, error: "Failed to fetch players" },
+         {
+            success: false,
+            error: "Failed to fetch players",
+            details: error.message,
+         },
          { status: 500 }
       );
    }

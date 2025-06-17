@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import db from "../../../../../../../lib/db";
+import pool from "@/lib/db";
 
 export async function GET(
    request: NextRequest,
@@ -19,7 +19,7 @@ export async function GET(
       }
 
       // Get team information
-      const [teams] = await db.execute(
+      const [teams] = await pool.execute(
          `SELECT team_id, name, short_name, primary_color 
        FROM teams WHERE team_id IN (?, ?)`,
          [teamId, opponentId]
@@ -66,10 +66,10 @@ export async function GET(
 
       matchQuery += ` ORDER BY m.match_date DESC`;
 
-      const [matches] = await db.execute(matchQuery, queryParams);
+      const [matches] = await pool.execute(matchQuery, queryParams);
 
       // Calculate overall head-to-head statistics
-      const [overallStats] = await db.execute(
+      const [overallStats] = await pool.execute(
          `SELECT 
         COUNT(*) as total_matches,
         COUNT(CASE WHEN m.winning_team_id = ? THEN 1 END) as team1_wins,
@@ -112,7 +112,7 @@ export async function GET(
       );
 
       // Get venue-wise head-to-head
-      const [venueStats] = await db.execute(
+      const [venueStats] = await pool.execute(
          `SELECT 
         s.stadium_id,
         s.name as stadium_name,
@@ -140,7 +140,7 @@ export async function GET(
       );
 
       // Get recent form (last 5 matches)
-      const [recentForm] = await db.execute(
+      const [recentForm] = await pool.execute(
          `SELECT 
         m.match_id,
         m.match_date,
@@ -154,7 +154,7 @@ export async function GET(
       );
 
       // Get top performers in head-to-head
-      const [topBatsmen] = await db.execute(
+      const [topBatsmen] = await pool.execute(
          `SELECT 
         p.name as player_name,
         t.short_name as team_short,

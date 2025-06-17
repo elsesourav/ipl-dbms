@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import db from "../../../../../lib/db";
+import pool from "@/lib/db";
 
 export async function GET(
    request: NextRequest,
@@ -16,7 +16,7 @@ export async function GET(
       }
 
       // Get comprehensive match data for mobile
-      const [matches] = await db.execute(
+      const [matches] = await pool.execute(
          `SELECT 
         m.*,
         t1.name as team1_name, t1.short_name as team1_short,
@@ -42,7 +42,7 @@ export async function GET(
       const match = (matches as any[])[0];
 
       // Get live scores
-      const [scores] = await db.execute(
+      const [scores] = await pool.execute(
          `SELECT 
         ts.*,
         t.name as team_name,
@@ -54,7 +54,7 @@ export async function GET(
       );
 
       // Get recent balls (last 10)
-      const [recentBalls] = await db.execute(
+      const [recentBalls] = await pool.execute(
          `SELECT 
         bs.*,
         p.name as batsman_name,
@@ -69,7 +69,7 @@ export async function GET(
       );
 
       // Get key players on strike
-      const [currentBatsmen] = await db.execute(
+      const [currentBatsmen] = await pool.execute(
          `SELECT 
          p.player_id, p.name, p.jersey_number,
          SUM(bs.runs_scored) as runs,
@@ -85,7 +85,7 @@ export async function GET(
       );
 
       // Get current bowler
-      const [currentBowler] = await db.execute(
+      const [currentBowler] = await pool.execute(
          `SELECT 
          p.player_id, p.name, p.jersey_number,
          bow.overs_bowled, bow.runs_conceded, bow.wickets_taken, bow.economy_rate

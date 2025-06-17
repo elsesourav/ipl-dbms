@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import db from "../../../../lib/db";
+import pool from "@/lib/db";
 
 export async function GET(request: NextRequest) {
    try {
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
       query += ` ORDER BY n.created_at DESC LIMIT ? OFFSET ?`;
       params.push(limit, offset);
 
-      const [notifications] = await db.execute(query, params);
+      const [notifications] = await pool.execute(query, params);
 
       // Get total count
       let countQuery = `SELECT COUNT(*) as total FROM push_notifications n`;
@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
          countParams.push(userId);
       }
 
-      const [countResult] = await db.execute(countQuery, countParams);
+      const [countResult] = await pool.execute(countQuery, countParams);
       const total = (countResult as any[])[0]?.total || 0;
       const totalPages = Math.ceil(total / limit);
 
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
          );
       }
 
-      const [result] = await db.execute(
+      const [result] = await pool.execute(
          `INSERT INTO push_notifications 
        (user_id, type, title, message, match_id, player_id, created_at)
        VALUES (?, ?, ?, ?, ?, ?, NOW())`,

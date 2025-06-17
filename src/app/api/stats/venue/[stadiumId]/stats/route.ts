@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import db from "../../../../../../lib/db";
+import pool from "@/lib/db";
 
 export async function GET(
    request: NextRequest,
@@ -18,7 +18,7 @@ export async function GET(
       }
 
       // Get stadium information
-      const [stadiumInfo] = await db.execute(
+      const [stadiumInfo] = await pool.execute(
          `SELECT * FROM stadiums WHERE stadium_id = ?`,
          [stadiumId]
       );
@@ -39,7 +39,7 @@ export async function GET(
       const seasonParams = season ? [stadiumId, parseInt(season)] : [stadiumId];
 
       // Get overall venue statistics
-      const [venueStats] = await db.execute(
+      const [venueStats] = await pool.execute(
          `SELECT 
         COUNT(DISTINCT m.match_id) as total_matches,
         COUNT(DISTINCT m.season_year) as seasons_hosted,
@@ -66,7 +66,7 @@ export async function GET(
       );
 
       // Get team performance at this venue
-      const [teamPerformance] = await db.execute(
+      const [teamPerformance] = await pool.execute(
          `SELECT 
         t.team_id,
         t.name as team_name,
@@ -87,7 +87,7 @@ export async function GET(
       );
 
       // Get batting statistics at this venue
-      const [battingStats] = await db.execute(
+      const [battingStats] = await pool.execute(
          `SELECT 
         COUNT(CASE WHEN ts.total_score >= 200 THEN 1 END) as scores_200_plus,
         COUNT(CASE WHEN ts.total_score >= 180 THEN 1 END) as scores_180_plus,
@@ -105,7 +105,7 @@ export async function GET(
       );
 
       // Get bowling statistics at this venue
-      const [bowlingStats] = await db.execute(
+      const [bowlingStats] = await pool.execute(
          `SELECT 
         SUM(bow.wickets_taken) as total_wickets,
         ROUND(AVG(bow.economy_rate), 2) as average_economy_rate,
@@ -120,7 +120,7 @@ export async function GET(
       );
 
       // Get highest individual scores at this venue
-      const [topScores] = await db.execute(
+      const [topScores] = await pool.execute(
          `SELECT 
         p.name as player_name,
         t.short_name as team_short,
@@ -155,7 +155,7 @@ export async function GET(
       );
 
       // Get best bowling figures at this venue
-      const [topBowlingFigures] = await db.execute(
+      const [topBowlingFigures] = await pool.execute(
          `SELECT 
         p.name as player_name,
         t.short_name as team_short,
@@ -180,7 +180,7 @@ export async function GET(
       // Get seasonal breakdown if no specific season is provided
       let seasonalBreakdown: any[] | null = null;
       if (!season) {
-         const [seasonalData] = await db.execute(
+         const [seasonalData] = await pool.execute(
             `SELECT 
           m.season_year,
           COUNT(DISTINCT m.match_id) as matches_in_season,

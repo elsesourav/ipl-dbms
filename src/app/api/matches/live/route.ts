@@ -1,7 +1,7 @@
 import { RowDataPacket } from "mysql2";
 import { NextRequest, NextResponse } from "next/server";
-import pool from "../../../../lib/db";
-import { formatDate, formatTime } from "../../../../lib/utils";
+import pool from "@/lib/db";
+import { formatDate, formatTime } from "@/lib/utils";
 
 interface LiveMatch extends RowDataPacket {
    match_id: number;

@@ -3,7 +3,7 @@ import fs from "fs";
 import { NextRequest, NextResponse } from "next/server";
 import path from "path";
 import { promisify } from "util";
-import pool from "../../../../lib/db";
+import pool from "@/lib/db";
 
 const execAsync = promisify(exec);
 

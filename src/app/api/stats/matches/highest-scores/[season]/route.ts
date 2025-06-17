@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import db from "../../../../../../lib/db";
+import pool from "@/lib/db";
 
 export async function GET(
    request: NextRequest,
@@ -51,10 +51,10 @@ export async function GET(
       query += ` ORDER BY ts.total_score DESC LIMIT ?`;
       queryParams.push(limit);
 
-      const [highestScores] = await db.execute(query, queryParams);
+      const [highestScores] = await pool.execute(query, queryParams);
 
       // Get highest individual scores in those matches
-      const [individualScores] = await db.execute(
+      const [individualScores] = await pool.execute(
          `SELECT 
         p.name as player_name,
         p.jersey_number,
@@ -78,7 +78,7 @@ export async function GET(
       );
 
       // Get season statistics
-      const [seasonStats] = await db.execute(
+      const [seasonStats] = await pool.execute(
          `SELECT 
         COUNT(DISTINCT m.match_id) as total_matches,
         AVG(ts.total_score) as average_score,
@@ -97,7 +97,7 @@ export async function GET(
       );
 
       // Get highest partnerships
-      const [partnerships] = await db.execute(
+      const [partnerships] = await pool.execute(
          `SELECT 
         p1.name as batsman1_name,
         p2.name as batsman2_name,

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import pool from "../../../../lib/db";
+import pool from "@/lib/db";
 
 // GET /api/dashboard/recent-matches - Get recent match results
 export async function GET(request: NextRequest) {

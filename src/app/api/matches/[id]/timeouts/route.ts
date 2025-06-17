@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import db from "../../../../../lib/db";
+import pool from "@/lib/db";
 
 export async function GET(
    request: NextRequest,
@@ -16,7 +16,7 @@ export async function GET(
       }
 
       // Get strategic timeouts for the match
-      const [timeouts] = await db.execute(
+      const [timeouts] = await pool.execute(
          `SELECT 
         st.*,
         t.name as team_name,

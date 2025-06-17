@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import db from "../../../../../../lib/db";
+import pool from "@/lib/db";
 
 export async function GET(
    request: NextRequest,
@@ -13,7 +13,7 @@ export async function GET(
       }
 
       // Get Purple Cap holder (highest wicket taker)
-      const [purpleCapData] = await db.execute(
+      const [purpleCapData] = await pool.execute(
          `SELECT 
         p.player_id,
         p.name,
@@ -52,7 +52,7 @@ export async function GET(
       const purpleCapHolder = (purpleCapData as any[])[0];
 
       // Get top 10 wicket takers for context
-      const [topBowlers] = await db.execute(
+      const [topBowlers] = await pool.execute(
          `SELECT 
         p.player_id,
         p.name,
@@ -75,7 +75,7 @@ export async function GET(
       );
 
       // Get match-by-match progression for the Purple Cap holder
-      const [progression] = await db.execute(
+      const [progression] = await pool.execute(
          `SELECT 
         m.match_id,
         m.match_date,
@@ -95,7 +95,7 @@ export async function GET(
       );
 
       // Get best bowling figures of the season
-      const [bestFigures] = await db.execute(
+      const [bestFigures] = await pool.execute(
          `SELECT 
         p.name as player_name,
         t.short_name as team_short,

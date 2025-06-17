@@ -1,7 +1,7 @@
 import { ResultSetHeader, RowDataPacket } from "mysql2";
 import { NextRequest, NextResponse } from "next/server";
-import pool from "../../../../lib/db";
-import { formatCurrency, formatDate } from "../../../../lib/utils";
+import pool from "@/lib/db";
+import { formatCurrency, formatDate } from "@/lib/utils";
 
 interface Player extends RowDataPacket {
    player_id: number;

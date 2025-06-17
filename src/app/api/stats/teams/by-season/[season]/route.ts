@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import db from "../../../../../lib/db";
+import pool from "@/lib/db";
 
 export async function GET(
    request: NextRequest,
@@ -13,7 +13,7 @@ export async function GET(
       }
 
       // Get comprehensive team statistics for the season
-      const [teamStats] = await db.execute(
+      const [teamStats] = await pool.execute(
          `SELECT 
         t.team_id,
         t.name as team_name,
@@ -58,7 +58,7 @@ export async function GET(
       );
 
       // Get head-to-head records
-      const [headToHead] = await db.execute(
+      const [headToHead] = await pool.execute(
          `SELECT 
         t1.team_id as team1_id,
         t1.short_name as team1_short,
@@ -77,7 +77,7 @@ export async function GET(
       );
 
       // Get milestone achievements
-      const [milestones] = await db.execute(
+      const [milestones] = await pool.execute(
          `SELECT 
         t.team_id,
         t.short_name,
@@ -95,7 +95,7 @@ export async function GET(
       );
 
       // Get season summary
-      const [seasonSummary] = await db.execute(
+      const [seasonSummary] = await pool.execute(
          `SELECT 
         COUNT(DISTINCT t.team_id) as total_teams,
         COUNT(DISTINCT m.match_id) as total_matches,

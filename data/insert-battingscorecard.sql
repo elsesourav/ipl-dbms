@@ -377,4 +377,6 @@ VALUES
       NULL,
       NULL
    ), -- Deepak Chahar
-   (7, 40, 3, 9, 2, 3, 0, 0, TRUE, 'caught', 13, 4), -- Matheesha Pathirana;
+   (7, 40, 3, 9, 2, 3, 0, 0, TRUE, 'caught', 13, 4);
+
+-- Matheesha Pathirana

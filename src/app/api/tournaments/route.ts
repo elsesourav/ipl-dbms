@@ -1,6 +1,6 @@
 import { RowDataPacket } from "mysql2";
 import { NextRequest, NextResponse } from "next/server";
-import pool from "../../../lib/db";
+import pool from "@/lib/db";
 
 // GET /api/tournaments - Get all tournaments/seasons
 export async function GET(request: NextRequest) {

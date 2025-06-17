@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import db from "../../../../../../lib/db";
+import pool from "@/lib/db";
 
 export async function GET(
    request: NextRequest,
@@ -96,10 +96,10 @@ export async function GET(
       query += ` LIMIT ?`;
       queryParams.push(limit);
 
-      const [battingStats] = await db.execute(query, queryParams);
+      const [battingStats] = await pool.execute(query, queryParams);
 
       // Get season summary
-      const [summary] = await db.execute(
+      const [summary] = await pool.execute(
          `SELECT 
         COUNT(DISTINCT p.player_id) as total_batsmen,
         SUM(bs.runs_scored) as total_runs,

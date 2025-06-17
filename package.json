@@ -7,9 +7,9 @@
       "build": "next build",
       "start": "next start",
       "lint": "next lint",
-      "init-db": "node scripts/init-db.js",
-      "load-data": "node scripts/load-data.js",
-      "clear-data": "node scripts/clear-data.js"
+      "init-db": "node scripts/init-db.mjs",
+      "load-data": "node scripts/load-data.mjs",
+      "clear-data": "node scripts/clear-data.mjs"
    },
    "dependencies": {
       "@hookform/resolvers": "^3.3.2",

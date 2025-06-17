@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import pool from "../../../../lib/db";
+import pool from "@/lib/db";
 
 // GET /api/mobile/quick-stats - Get quick stats for mobile app
 export async function GET(request: NextRequest) {
