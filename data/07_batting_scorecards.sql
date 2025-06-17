@@ -418,3 +418,510 @@ VALUES
       'not_out',
       NULL
    );
+
+-- Additional Batting Scorecard Data for Missing Players (IDs > 55)
+-- Mumbai Indians additional players (team_id = 1)
+INSERT INTO
+   BattingScorecard (
+      match_id,
+      player_id,
+      team_id,
+      batting_position,
+      runs_scored,
+      balls_faced,
+      fours,
+      sixes,
+      is_out,
+      out_type,
+      bowler_id
+   )
+VALUES
+   -- Daniel Sams (56)
+   (1, 56, 1, 7, 12, 8, 1, 1, TRUE, 'caught', 14),
+   (5, 56, 1, 7, 8, 6, 0, 1, FALSE, 'not_out', NULL),
+   -- Ramandeep Singh (57)
+   (9, 57, 1, 6, 25, 18, 3, 0, TRUE, 'bowled', 22),
+   (
+      13,
+      57,
+      1,
+      6,
+      18,
+      15,
+      2,
+      0,
+      FALSE,
+      'not_out',
+      NULL
+   ),
+   -- Tilak Varma (58)
+   (1, 58, 1, 4, 34, 26, 4, 1, TRUE, 'lbw', 13),
+   (5, 58, 1, 4, 42, 32, 5, 1, FALSE, 'not_out', NULL),
+   (9, 58, 1, 4, 28, 22, 3, 0, TRUE, 'caught', 21);
+
+-- Chennai Super Kings additional players (team_id = 2)
+INSERT INTO
+   BattingScorecard (
+      match_id,
+      player_id,
+      team_id,
+      batting_position,
+      runs_scored,
+      balls_faced,
+      fours,
+      sixes,
+      is_out,
+      out_type,
+      bowler_id
+   )
+VALUES
+   -- Ambati Rayudu (63)
+   (2, 63, 2, 3, 45, 35, 5, 1, TRUE, 'caught', 18),
+   (6, 63, 2, 3, 32, 28, 3, 1, FALSE, 'not_out', NULL),
+   -- Robin Uthappa (64)
+   (10, 64, 2, 2, 38, 30, 4, 1, TRUE, 'bowled', 17),
+   (14, 64, 2, 2, 29, 24, 3, 0, TRUE, 'lbw', 19),
+   -- Moeen Ali (65)
+   (2, 65, 2, 6, 22, 16, 2, 1, TRUE, 'caught', 16),
+   (6, 65, 2, 6, 18, 12, 1, 1, FALSE, 'not_out', NULL);
+
+-- Royal Challengers Bangalore additional players (team_id = 3)
+INSERT INTO
+   BattingScorecard (
+      match_id,
+      player_id,
+      team_id,
+      batting_position,
+      runs_scored,
+      balls_faced,
+      fours,
+      sixes,
+      is_out,
+      out_type,
+      bowler_id
+   )
+VALUES
+   -- Dinesh Karthik (71)
+   (2, 71, 3, 5, 35, 24, 3, 2, TRUE, 'caught', 12),
+   (7, 71, 3, 5, 28, 20, 2, 1, FALSE, 'not_out', NULL),
+   -- Rajat Patidar (72)
+   (11, 72, 3, 3, 52, 38, 6, 2, TRUE, 'bowled', 25),
+   (15, 72, 3, 3, 41, 32, 4, 1, TRUE, 'lbw', 27),
+   -- Wanindu Hasaranga (73)
+   (2, 73, 3, 7, 15, 12, 1, 1, TRUE, 'caught', 11),
+   (7, 73, 3, 8, 8, 6, 0, 1, FALSE, 'not_out', NULL);
+
+-- Kolkata Knight Riders additional players (team_id = 4)
+INSERT INTO
+   BattingScorecard (
+      match_id,
+      player_id,
+      team_id,
+      batting_position,
+      runs_scored,
+      balls_faced,
+      fours,
+      sixes,
+      is_out,
+      out_type,
+      bowler_id
+   )
+VALUES
+   -- Nitish Rana (79)
+   (3, 79, 4, 3, 45, 35, 5, 1, TRUE, 'caught', 15),
+   (8, 79, 4, 3, 38, 30, 4, 1, FALSE, 'not_out', NULL),
+   -- Rinku Singh (81)
+   (12, 81, 4, 5, 28, 22, 3, 0, TRUE, 'bowled', 31),
+   (16, 81, 4, 5, 35, 26, 4, 1, TRUE, 'lbw', 33);
+
+-- Delhi Capitals additional players (team_id = 5)
+INSERT INTO
+   BattingScorecard (
+      match_id,
+      player_id,
+      team_id,
+      batting_position,
+      runs_scored,
+      balls_faced,
+      fours,
+      sixes,
+      is_out,
+      out_type,
+      bowler_id
+   )
+VALUES
+   -- Manish Pandey (87)
+   (4, 87, 5, 4, 42, 32, 4, 1, TRUE, 'caught', 42),
+   (
+      13,
+      87,
+      5,
+      4,
+      36,
+      28,
+      3,
+      1,
+      FALSE,
+      'not_out',
+      NULL
+   ),
+   -- Mitchell Marsh (89)
+   (17, 89, 5, 3, 58, 42, 6, 2, TRUE, 'bowled', 44),
+   (21, 89, 5, 3, 34, 26, 3, 1, TRUE, 'lbw', 42);
+
+-- Punjab Kings additional players (team_id = 6)
+INSERT INTO
+   BattingScorecard (
+      match_id,
+      player_id,
+      team_id,
+      batting_position,
+      runs_scored,
+      balls_faced,
+      fours,
+      sixes,
+      is_out,
+      out_type,
+      bowler_id
+   )
+VALUES
+   -- Nicholas Pooran (95)
+   (5, 95, 6, 4, 48, 32, 4, 3, TRUE, 'caught', 3),
+   (
+      18,
+      95,
+      6,
+      4,
+      35,
+      25,
+      3,
+      2,
+      FALSE,
+      'not_out',
+      NULL
+   ),
+   -- Jonny Bairstow (96)
+   (22, 96, 6, 2, 62, 45, 7, 2, TRUE, 'bowled', 43),
+   (26, 96, 6, 2, 28, 22, 3, 0, TRUE, 'lbw', 41),
+   -- Shahrukh Khan (97)
+   (5, 97, 6, 6, 22, 16, 2, 1, TRUE, 'caught', 4),
+   (
+      18,
+      97,
+      6,
+      6,
+      18,
+      14,
+      1,
+      1,
+      FALSE,
+      'not_out',
+      NULL
+   );
+
+-- Rajasthan Royals additional players (team_id = 7)
+INSERT INTO
+   BattingScorecard (
+      match_id,
+      player_id,
+      team_id,
+      batting_position,
+      runs_scored,
+      balls_faced,
+      fours,
+      sixes,
+      is_out,
+      out_type,
+      bowler_id
+   )
+VALUES
+   -- Devdutt Padikkal (103)
+   (6, 103, 7, 3, 45, 34, 5, 1, TRUE, 'caught', 12),
+   (
+      19,
+      103,
+      7,
+      3,
+      38,
+      30,
+      4,
+      1,
+      FALSE,
+      'not_out',
+      NULL
+   ),
+   -- Shimron Hetmyer (104)
+   (23, 104, 7, 5, 32, 24, 3, 1, TRUE, 'bowled', 2),
+   (27, 104, 7, 5, 28, 20, 2, 1, TRUE, 'lbw', 4),
+   -- Riyan Parag (105)
+   (6, 105, 7, 6, 18, 15, 2, 0, TRUE, 'caught', 11),
+   (
+      19,
+      105,
+      7,
+      6,
+      25,
+      18,
+      3,
+      1,
+      FALSE,
+      'not_out',
+      NULL
+   );
+
+-- Sunrisers Hyderabad additional players (team_id = 8)
+INSERT INTO
+   BattingScorecard (
+      match_id,
+      player_id,
+      team_id,
+      batting_position,
+      runs_scored,
+      balls_faced,
+      fours,
+      sixes,
+      is_out,
+      out_type,
+      bowler_id
+   )
+VALUES
+   -- Aiden Markram (111)
+   (7, 111, 8, 3, 45, 32, 6, 1, TRUE, 'caught', 16),
+   (
+      20,
+      111,
+      8,
+      3,
+      67,
+      48,
+      8,
+      2,
+      FALSE,
+      'not_out',
+      NULL
+   ),
+   (24, 111, 8, 3, 28, 22, 3, 0, TRUE, 'bowled', 72),
+   (28, 111, 8, 3, 52, 38, 5, 2, TRUE, 'lbw', 74),
+   -- Nicholas Pooran (112)
+   (7, 112, 8, 4, 38, 25, 4, 2, TRUE, 'caught', 17),
+   (
+      20,
+      112,
+      8,
+      4,
+      56,
+      31,
+      5,
+      3,
+      FALSE,
+      'not_out',
+      NULL
+   ),
+   (
+      24,
+      112,
+      8,
+      4,
+      23,
+      19,
+      2,
+      1,
+      TRUE,
+      'run_out',
+      NULL
+   ),
+   -- Abdul Samad (113)
+   (7, 113, 8, 6, 15, 12, 1, 1, TRUE, 'caught', 18),
+   (
+      20,
+      113,
+      8,
+      6,
+      22,
+      14,
+      2,
+      1,
+      FALSE,
+      'not_out',
+      NULL
+   ),
+   (28, 113, 8, 6, 8, 8, 0, 1, TRUE, 'bowled', 72),
+   -- Washington Sundar (114)
+   (7, 114, 8, 7, 18, 15, 2, 0, TRUE, 'caught', 16),
+   (
+      20,
+      114,
+      8,
+      7,
+      25,
+      18,
+      3,
+      1,
+      FALSE,
+      'not_out',
+      NULL
+   ),
+   -- Marco Jansen (115)
+   (
+      20,
+      115,
+      8,
+      8,
+      12,
+      8,
+      1,
+      1,
+      FALSE,
+      'not_out',
+      NULL
+   ),
+   (24, 115, 8, 9, 6, 4, 1, 0, TRUE, 'bowled', 73);
+
+-- Gujarat Titans additional players (team_id = 9)
+INSERT INTO
+   BattingScorecard (
+      match_id,
+      player_id,
+      team_id,
+      batting_position,
+      runs_scored,
+      balls_faced,
+      fours,
+      sixes,
+      is_out,
+      out_type,
+      bowler_id
+   )
+VALUES
+   -- Wriddhiman Saha (119)
+   (8, 119, 9, 1, 42, 35, 5, 1, TRUE, 'caught', 20),
+   (
+      25,
+      119,
+      9,
+      1,
+      38,
+      32,
+      4,
+      1,
+      FALSE,
+      'not_out',
+      NULL
+   ),
+   -- Vijay Shankar (121)
+   (29, 121, 9, 5, 28, 22, 3, 0, TRUE, 'bowled', 43),
+   (32, 121, 9, 5, 22, 18, 2, 1, TRUE, 'lbw', 41);
+
+-- Lucknow Super Giants additional players (team_id = 10)
+INSERT INTO
+   BattingScorecard (
+      match_id,
+      player_id,
+      team_id,
+      batting_position,
+      runs_scored,
+      balls_faced,
+      fours,
+      sixes,
+      is_out,
+      out_type,
+      bowler_id
+   )
+VALUES
+   -- Krunal Pandya (127)
+   (9, 127, 10, 5, 32, 25, 3, 1, TRUE, 'caught', 1),
+   (
+      30,
+      127,
+      10,
+      5,
+      28,
+      22,
+      2,
+      1,
+      FALSE,
+      'not_out',
+      NULL
+   ),
+   -- Deepak Hooda (128)
+   (33, 128, 10, 4, 45, 34, 5, 1, TRUE, 'bowled', 42),
+   (34, 128, 10, 4, 38, 30, 4, 1, TRUE, 'lbw', 44),
+   -- Kyle Mayers (129)
+   (9, 129, 10, 3, 52, 38, 6, 2, TRUE, 'caught', 2),
+   (
+      30,
+      129,
+      10,
+      3,
+      34,
+      26,
+      3,
+      1,
+      FALSE,
+      'not_out',
+      NULL
+   ),
+   -- Ayush Badoni (130)
+   (33, 130, 10, 6, 18, 15, 2, 0, TRUE, 'caught', 41),
+   (
+      34,
+      130,
+      10,
+      6,
+      22,
+      16,
+      2,
+      1,
+      FALSE,
+      'not_out',
+      NULL
+   );
+
+-- Fix player team assignments to match scorecard data
+-- This aligns the Players table with the BattingScorecard data
+UPDATE Players p
+SET
+   team_id = (
+      SELECT DISTINCT
+         bs.team_id
+      FROM
+         BattingScorecard bs
+      WHERE
+         bs.player_id = p.player_id
+      LIMIT
+         1
+   )
+WHERE
+   p.player_id IN (
+      SELECT DISTINCT
+         player_id
+      FROM
+         BattingScorecard
+   );
+
+-- Verification query to check alignment
+SELECT
+   CONCAT ('Players with scorecard data aligned: ', COUNT(*)) as alignment_status
+FROM
+   Players p
+WHERE
+   p.player_id IN (
+      SELECT DISTINCT
+         player_id
+      FROM
+         BattingScorecard
+   );
+
+-- Check for any remaining mismatches
+SELECT
+   CONCAT ('Remaining team mismatches: ', COUNT(*)) as mismatch_status
+FROM
+   (
+      SELECT DISTINCT
+         bs.player_id
+      FROM
+         BattingScorecard bs
+         JOIN Players p ON bs.player_id = p.player_id
+      WHERE
+         bs.team_id != p.team_id
+   ) as mismatches;

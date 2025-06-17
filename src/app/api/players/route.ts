@@ -9,7 +9,7 @@ export async function GET() {
       const [rows] = await db.execute(`
       SELECT 
         p.player_id,
-        p.player_name as name,
+        p.player_name,
         p.date_of_birth,
         p.nationality,
         p.role,
@@ -17,7 +17,7 @@ export async function GET() {
         p.bowling_style,
         p.jersey_number,
         p.price_crores,
-        t.team_name as team,
+        t.team_name,
         t.team_code
       FROM Players p
       LEFT JOIN Teams t ON p.team_id = t.team_id

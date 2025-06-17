@@ -155,88 +155,97 @@ export default function PlayersPage() {
             {/* Players Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                {filteredPlayers.map((player) => (
-                  <Card
+                  <Link
                      key={player.player_id}
-                     className="hover:shadow-lg transition-shadow"
+                     href={`/players/${player.player_id}`}
+                     className="block h-full"
                   >
-                     <CardHeader className="pb-3">
-                        <div className="flex items-center justify-between">
-                           {player.team_code && (
-                              <div
-                                 className={`px-2 py-1 rounded text-xs font-bold ${getTeamColorClass(
-                                    player.team_code
-                                 )}`}
+                     <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer hover:scale-105 transform h-full flex flex-col">
+                        <CardHeader className="pb-3">
+                           <div className="flex items-center justify-between">
+                              {player.team_code && (
+                                 <div
+                                    className={`px-2 py-1 rounded text-xs font-bold ${getTeamColorClass(
+                                       player.team_code
+                                    )}`}
+                                 >
+                                    {player.team_code}
+                                 </div>
+                              )}
+                              {player.jersey_number && (
+                                 <div className="bg-gray-200 text-gray-800 px-2 py-1 rounded text-xs font-bold">
+                                    #{player.jersey_number}
+                                 </div>
+                              )}
+                           </div>
+                           <CardTitle className="text-lg hover:text-blue-600 transition-colors">
+                              {player.player_name}
+                           </CardTitle>
+                           <div className="flex items-center gap-1">
+                              <Badge
+                                 className={
+                                    roleColors[
+                                       player.role as keyof typeof roleColors
+                                    ] || "bg-gray-100 text-gray-800"
+                                 }
                               >
-                                 {player.team_code}
+                                 {player.role}
+                              </Badge>
+                           </div>
+                        </CardHeader>
+                        <CardContent className="space-y-3 flex-grow">
+                           <div className="space-y-3 min-h-[120px]">
+                              {player.team_name && (
+                                 <div className="text-sm">
+                                    <span className="font-medium">Team:</span>{" "}
+                                    {player.team_name}
+                                 </div>
+                              )}
+
+                              {player.nationality && (
+                                 <div className="flex items-center gap-2 text-sm">
+                                    <MapPin className="w-4 h-4 text-gray-500" />
+                                    <span>{player.nationality}</span>
+                                 </div>
+                              )}
+
+                              {player.date_of_birth && (
+                                 <div className="flex items-center gap-2 text-sm">
+                                    <Calendar className="w-4 h-4 text-gray-500" />
+                                    <span>
+                                       Age: {calculateAge(player.date_of_birth)}
+                                    </span>
+                                 </div>
+                              )}
+
+                              {player.batting_style && (
+                                 <div className="text-sm">
+                                    <span className="font-medium">
+                                       Batting:
+                                    </span>{" "}
+                                    {player.batting_style}
+                                 </div>
+                              )}
+
+                              {player.bowling_style && (
+                                 <div className="text-sm">
+                                    <span className="font-medium">
+                                       Bowling:
+                                    </span>{" "}
+                                    {player.bowling_style}
+                                 </div>
+                              )}
+                           </div>
+
+                           {player.price_crores && (
+                              <div className="flex items-center gap-2 text-sm font-bold text-green-600 mt-auto">
+                                 <DollarSign className="w-4 h-4" />
+                                 <span>₹{player.price_crores} Cr</span>
                               </div>
                            )}
-                           {player.jersey_number && (
-                              <div className="bg-gray-200 text-gray-800 px-2 py-1 rounded text-xs font-bold">
-                                 #{player.jersey_number}
-                              </div>
-                           )}
-                        </div>
-                        <CardTitle className="text-lg">
-                           {player.player_name}
-                        </CardTitle>
-                        <div className="flex items-center gap-1">
-                           <Badge
-                              className={
-                                 roleColors[
-                                    player.role as keyof typeof roleColors
-                                 ] || "bg-gray-100 text-gray-800"
-                              }
-                           >
-                              {player.role}
-                           </Badge>
-                        </div>
-                     </CardHeader>
-                     <CardContent className="space-y-3">
-                        {player.team_name && (
-                           <div className="text-sm">
-                              <span className="font-medium">Team:</span>{" "}
-                              {player.team_name}
-                           </div>
-                        )}
-
-                        {player.nationality && (
-                           <div className="flex items-center gap-2 text-sm">
-                              <MapPin className="w-4 h-4 text-gray-500" />
-                              <span>{player.nationality}</span>
-                           </div>
-                        )}
-
-                        {player.date_of_birth && (
-                           <div className="flex items-center gap-2 text-sm">
-                              <Calendar className="w-4 h-4 text-gray-500" />
-                              <span>
-                                 Age: {calculateAge(player.date_of_birth)}
-                              </span>
-                           </div>
-                        )}
-
-                        {player.batting_style && (
-                           <div className="text-sm">
-                              <span className="font-medium">Batting:</span>{" "}
-                              {player.batting_style}
-                           </div>
-                        )}
-
-                        {player.bowling_style && (
-                           <div className="text-sm">
-                              <span className="font-medium">Bowling:</span>{" "}
-                              {player.bowling_style}
-                           </div>
-                        )}
-
-                        {player.price_crores && (
-                           <div className="flex items-center gap-2 text-sm font-bold text-green-600">
-                              <DollarSign className="w-4 h-4" />
-                              <span>₹{player.price_crores} Cr</span>
-                           </div>
-                        )}
-                     </CardContent>
-                  </Card>
+                        </CardContent>
+                     </Card>
+                  </Link>
                ))}
             </div>
 

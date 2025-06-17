@@ -288,3 +288,251 @@ VALUES
    (34, 47, 9, 4.0, 42, 0, 0, 1, 0),
    (34, 46, 9, 4.0, 45, 0, 0, 0, 0),
    (34, 50, 9, 4.0, 41, 0, 0, 2, 0);
+
+-- Additional Bowling Scorecard Data for Missing Players (IDs > 55)
+-- Mumbai Indians additional players bowling
+INSERT INTO
+   BowlingScorecard (
+      match_id,
+      player_id,
+      team_id,
+      overs_bowled,
+      runs_conceded,
+      wickets_taken,
+      maiden_overs,
+      wides,
+      no_balls
+   )
+VALUES
+   -- Daniel Sams (56)
+   (1, 56, 1, 3.0, 25, 1, 0, 1, 0),
+   (5, 56, 1, 2.0, 18, 0, 0, 0, 1);
+
+-- Chennai Super Kings additional players bowling
+INSERT INTO
+   BowlingScorecard (
+      match_id,
+      player_id,
+      team_id,
+      overs_bowled,
+      runs_conceded,
+      wickets_taken,
+      maiden_overs,
+      wides,
+      no_balls
+   )
+VALUES
+   -- Moeen Ali (65)
+   (2, 65, 2, 4.0, 32, 1, 0, 1, 0),
+   (6, 65, 2, 3.0, 28, 2, 0, 2, 1);
+
+-- Royal Challengers Bangalore additional players bowling  
+INSERT INTO
+   BowlingScorecard (
+      match_id,
+      player_id,
+      team_id,
+      overs_bowled,
+      runs_conceded,
+      wickets_taken,
+      maiden_overs,
+      wides,
+      no_balls
+   )
+VALUES
+   -- Wanindu Hasaranga (73)
+   (2, 73, 3, 4.0, 28, 2, 0, 1, 0),
+   (7, 73, 3, 4.0, 35, 1, 0, 2, 1),
+   -- Harshal Patel (74)
+   (11, 74, 3, 4.0, 32, 2, 0, 1, 0),
+   (15, 74, 3, 3.5, 29, 1, 0, 1, 0);
+
+-- Kolkata Knight Riders additional players bowling
+INSERT INTO
+   BowlingScorecard (
+      match_id,
+      player_id,
+      team_id,
+      overs_bowled,
+      runs_conceded,
+      wickets_taken,
+      maiden_overs,
+      wides,
+      no_balls
+   )
+VALUES
+   -- Varun Chakaravarthy (83)
+   (3, 83, 4, 4.0, 30, 2, 0, 1, 0),
+   (8, 83, 4, 4.0, 28, 3, 0, 0, 1),
+   -- Umesh Yadav (85)
+   (12, 85, 4, 4.0, 35, 1, 0, 2, 0),
+   (16, 85, 4, 3.0, 28, 2, 0, 1, 1);
+
+-- Delhi Capitals additional players bowling
+INSERT INTO
+   BowlingScorecard (
+      match_id,
+      player_id,
+      team_id,
+      overs_bowled,
+      runs_conceded,
+      wickets_taken,
+      maiden_overs,
+      wides,
+      no_balls
+   )
+VALUES
+   -- Mitchell Marsh (89)
+   (17, 89, 5, 2.0, 18, 0, 0, 1, 0),
+   -- Anrich Nortje (91)
+   (4, 91, 5, 4.0, 32, 2, 0, 1, 0),
+   (13, 91, 5, 4.0, 29, 3, 0, 2, 1),
+   -- Kuldeep Yadav (93)
+   (17, 93, 5, 4.0, 26, 2, 1, 0, 0),
+   (21, 93, 5, 4.0, 31, 1, 0, 1, 0);
+
+-- Punjab Kings additional players bowling
+INSERT INTO
+   BowlingScorecard (
+      match_id,
+      player_id,
+      team_id,
+      overs_bowled,
+      runs_conceded,
+      wickets_taken,
+      maiden_overs,
+      wides,
+      no_balls
+   )
+VALUES
+   -- Harpreet Brar (99)
+   (5, 99, 6, 4.0, 28, 2, 0, 1, 0),
+   (18, 99, 6, 3.0, 24, 1, 0, 0, 1),
+   -- Kagiso Rabada (101)
+   (22, 101, 6, 4.0, 31, 3, 0, 2, 0),
+   (26, 101, 6, 4.0, 28, 2, 0, 1, 1);
+
+-- Rajasthan Royals additional players bowling
+INSERT INTO
+   BowlingScorecard (
+      match_id,
+      player_id,
+      team_id,
+      overs_bowled,
+      runs_conceded,
+      wickets_taken,
+      maiden_overs,
+      wides,
+      no_balls
+   )
+VALUES
+   -- Ravichandran Ashwin (106)
+   (6, 106, 7, 4.0, 29, 2, 0, 1, 0),
+   (19, 106, 7, 4.0, 32, 1, 0, 2, 1),
+   -- Trent Boult (107)
+   (23, 107, 7, 4.0, 26, 3, 0, 1, 0),
+   (27, 107, 7, 3.5, 24, 2, 0, 0, 0);
+
+-- Sunrisers Hyderabad additional players bowling
+INSERT INTO
+   BowlingScorecard (
+      match_id,
+      player_id,
+      team_id,
+      overs_bowled,
+      runs_conceded,
+      wickets_taken,
+      maiden_overs,
+      wides,
+      no_balls
+   )
+VALUES
+   -- Aiden Markram (111) - he can bowl spin
+   (7, 111, 8, 2.0, 18, 0, 0, 1, 0),
+   (20, 111, 8, 1.0, 8, 1, 0, 0, 0),
+   -- Washington Sundar (114)
+   (7, 114, 8, 4.0, 32, 2, 0, 1, 0),
+   (20, 114, 8, 4.0, 28, 1, 0, 2, 1),
+   (24, 114, 8, 3.5, 35, 1, 0, 1, 0),
+   -- Marco Jansen (115)
+   (7, 115, 8, 4.0, 42, 1, 0, 2, 0),
+   (20, 115, 8, 3.0, 25, 2, 0, 1, 1),
+   (24, 115, 8, 4.0, 38, 2, 0, 1, 0),
+   -- Umran Malik (116)
+   (28, 116, 8, 4.0, 35, 2, 0, 1, 0),
+   -- Kartik Tyagi (117)
+   (24, 117, 8, 3.0, 28, 1, 0, 2, 1);
+
+-- Gujarat Titans additional players bowling
+INSERT INTO
+   BowlingScorecard (
+      match_id,
+      player_id,
+      team_id,
+      overs_bowled,
+      runs_conceded,
+      wickets_taken,
+      maiden_overs,
+      wides,
+      no_balls
+   )
+VALUES
+   -- Rahul Tewatia (122)
+   (8, 122, 9, 4.0, 32, 1, 0, 1, 0),
+   (25, 122, 9, 3.0, 26, 2, 0, 0, 1),
+   -- Lockie Ferguson (123)
+   (29, 123, 9, 4.0, 29, 3, 0, 2, 0),
+   (32, 123, 9, 4.0, 31, 2, 0, 1, 1);
+
+-- Lucknow Super Giants additional players bowling
+INSERT INTO
+   BowlingScorecard (
+      match_id,
+      player_id,
+      team_id,
+      overs_bowled,
+      runs_conceded,
+      wickets_taken,
+      maiden_overs,
+      wides,
+      no_balls
+   )
+VALUES
+   -- Krunal Pandya (127)
+   (9, 127, 10, 4.0, 30, 1, 0, 1, 0),
+   (30, 127, 10, 3.0, 25, 2, 0, 2, 1),
+   -- Avesh Khan (132)
+   (33, 132, 10, 4.0, 33, 2, 0, 1, 0),
+   (34, 132, 10, 4.0, 28, 3, 0, 0, 1),
+   -- Mark Wood (133)
+   (9, 133, 10, 4.0, 36, 1, 0, 2, 0),
+   (30, 133, 10, 3.5, 32, 2, 0, 1, 0);
+
+-- Final verification and cleanup
+-- Check data consistency between Players and scorecards
+SELECT
+   CONCAT (
+      'Total players with batting scorecard data: ',
+      COUNT(DISTINCT player_id)
+   ) as batting_stats
+FROM
+   BattingScorecard;
+
+SELECT
+   CONCAT (
+      'Total players with bowling scorecard data: ',
+      COUNT(DISTINCT player_id)
+   ) as bowling_stats
+FROM
+   BowlingScorecard;
+
+SELECT
+   CONCAT ('Players in both batting and bowling: ', COUNT(*)) as all_rounders
+FROM
+   (
+      SELECT DISTINCT
+         b.player_id
+      FROM
+         BattingScorecard b
+         INNER JOIN BowlingScorecard bo ON b.player_id = bo.player_id
+   ) as combined;

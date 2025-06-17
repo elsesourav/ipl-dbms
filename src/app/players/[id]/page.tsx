@@ -94,7 +94,50 @@ export default function PlayerDetailPage() {
             const statsResponse = await fetch(`/api/players/${playerId}/stats`);
             if (statsResponse.ok) {
                const statsData = await statsResponse.json();
-               setStats(statsData);
+               // Handle both old and new API response formats
+               if (statsData.success && statsData.data) {
+                  setStats(statsData.data);
+               } else if (statsData.matches_played !== undefined) {
+                  setStats(statsData);
+               } else {
+                  setStats({
+                     matches_played: 0,
+                     runs_scored: 0,
+                     balls_faced: 0,
+                     fours: 0,
+                     sixes: 0,
+                     highest_score: 0,
+                     fifties: 0,
+                     hundreds: 0,
+                     overs_bowled: 0,
+                     runs_conceded: 0,
+                     wickets_taken: 0,
+                     catches: 0,
+                     stumping: 0,
+                  });
+               }
+            } else {
+               console.error(
+                  `Failed to fetch stats for player ${playerId}:`,
+                  statsResponse.status,
+                  statsResponse.statusText
+               );
+               // Set default stats if API fails
+               setStats({
+                  matches_played: 0,
+                  runs_scored: 0,
+                  balls_faced: 0,
+                  fours: 0,
+                  sixes: 0,
+                  highest_score: 0,
+                  fifties: 0,
+                  hundreds: 0,
+                  overs_bowled: 0,
+                  runs_conceded: 0,
+                  wickets_taken: 0,
+                  catches: 0,
+                  stumping: 0,
+               });
             }
 
             // Fetch recent performances
@@ -103,7 +146,21 @@ export default function PlayerDetailPage() {
             );
             if (performancesResponse.ok) {
                const performancesData = await performancesResponse.json();
-               setRecentPerformances(performancesData);
+               // Handle both old and new API response formats
+               if (performancesData.success && performancesData.data) {
+                  setRecentPerformances(performancesData.data);
+               } else if (Array.isArray(performancesData)) {
+                  setRecentPerformances(performancesData);
+               } else {
+                  setRecentPerformances([]);
+               }
+            } else {
+               console.error(
+                  `Failed to fetch performances for player ${playerId}:`,
+                  performancesResponse.status,
+                  performancesResponse.statusText
+               );
+               setRecentPerformances([]);
             }
          } catch (error) {
             console.error("Error fetching player data:", error);

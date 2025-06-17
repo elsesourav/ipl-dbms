@@ -240,7 +240,9 @@ export default function TeamMatchesPage() {
                               {match.win_margin && (
                                  <p className="text-sm text-gray-600">
                                     by {match.win_margin}{" "}
-                                    {match.win_type === "runs" ? "runs" : "wickets"}
+                                    {match.win_type === "runs"
+                                       ? "runs"
+                                       : "wickets"}
                                  </p>
                               )}
                            </div>

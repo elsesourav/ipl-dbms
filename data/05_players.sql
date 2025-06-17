@@ -1508,3 +1508,6 @@ VALUES
       0.20,
       10
    );
+
+-- Note: Player team alignment will be fixed after scorecard data is loaded
+-- See data/07_batting_scorecards.sql for the alignment fix

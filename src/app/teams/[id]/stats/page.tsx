@@ -9,7 +9,7 @@ import {
    CardHeader,
    CardTitle,
 } from "@/components/ui/card";
-import { ArrowLeft, BarChart3, Target, Trophy, TrendingUp } from "lucide-react";
+import { ArrowLeft, BarChart3, Target, TrendingUp, Trophy } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -304,7 +304,9 @@ export default function TeamStatsPage() {
                            </div>
                         </div>
                         <div className="flex justify-between items-center">
-                           <span className="text-sm font-medium">Loss Rate</span>
+                           <span className="text-sm font-medium">
+                              Loss Rate
+                           </span>
                            <div className="flex items-center space-x-2">
                               <div className="w-24 bg-gray-200 rounded-full h-2">
                                  <div
