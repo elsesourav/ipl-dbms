@@ -21,36 +21,6 @@ export function formatTime(time: string): string {
    });
 }
 
-export function getTeamColor(teamCode: string): string {
-   const colors: Record<string, string> = {
-      MI: "team-mi",
-      CSK: "team-csk",
-      RCB: "team-rcb",
-      KKR: "team-kkr",
-      DC: "team-dc",
-      PBKS: "team-pbks",
-      RR: "team-rr",
-      SRH: "team-srh",
-   };
-   return colors[teamCode] || "bg-gray-500";
-}
-
-export function calculateAge(dateOfBirth: Date | string): number {
-   const today = new Date();
-   const birth = new Date(dateOfBirth);
-   let age = today.getFullYear() - birth.getFullYear();
-   const monthDiff = today.getMonth() - birth.getMonth();
-
-   if (
-      monthDiff < 0 ||
-      (monthDiff === 0 && today.getDate() < birth.getDate())
-   ) {
-      age--;
-   }
-
-   return age;
-}
-
 export function formatCurrency(amount: number): string {
    return new Intl.NumberFormat("en-IN", {
       style: "currency",
